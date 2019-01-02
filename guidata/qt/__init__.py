@@ -7,4 +7,4 @@
 
 """Compatibility package (PyQt4/PyQt5/PySide)"""
 
-from ..qtpy.__init__ import *
+from qtpy.__init__ import *

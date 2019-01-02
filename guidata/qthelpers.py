@@ -9,18 +9,17 @@
 qthelpers
 ---------
 
-The ``guidata.qthelpers`` module provides helper functions for developing 
+The ``guidata.qthelpers`` module provides helper functions for developing
 easily Qt-based graphical user interfaces.
 """
 
 from __future__ import print_function
 
 import sys
-from guidata.qt.QtGui import (QAction, QApplication, QColor, QHBoxLayout, QIcon,
-                              QKeySequence, QLabel, QLineEdit, QMenu,
-                              QPushButton, QStyle, QToolButton, QVBoxLayout,
-                              QWidget, QGroupBox)
-from guidata.qt.QtCore import Qt
+from qtpy.QtGui import (QColor, QIcon, QKeySequence)
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import (QApplication, QToolButton, QVBoxLayout, QMenu, QPushButton, QStyle,
+                            QWidget, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QAction)
 
 # Local imports:
 from guidata.configtools import get_icon
@@ -102,7 +101,7 @@ def create_toolbutton(parent, icon=None, text=None, triggered=None, tip=None,
     if enabled is not None:
         button.setEnabled(enabled)
     return button
-    
+
 def create_groupbox(parent, title=None, toggled=None, checked=None,
                     flat=False, layout=None):
     """Create a QGroupBox"""
@@ -179,7 +178,7 @@ class ShowStdIcons(QWidget):
                 col_layout.addLayout(icon_layout)
                 cindex = (cindex+1) % row_nb
                 if cindex == 0:
-                    layout.addLayout(col_layout)                    
+                    layout.addLayout(col_layout)
         self.setLayout(layout)
         self.setWindowTitle('Standard Platform Icons')
         self.setWindowIcon(get_std_icon('TitleBarMenuButton'))

@@ -4,4 +4,4 @@
 # Licensed under the terms of the MIT License
 # (see spyderlib/__init__.py for details)
 
-from ..qtpy.QtDesigner import * 
+from qtpy.QtDesigner import *

@@ -13,7 +13,7 @@ Dialog boxes used to edit data sets:
     DataSetEditDialog
     DataSetGroupEditDialog
     DataSetShowDialog
-    
+
 ...and layouts:
     GroupItem
     DataSetEditLayout
@@ -31,11 +31,13 @@ try:
 except ImportError:
     pass
 
-from guidata.qt.QtGui import (QDialog, QMessageBox, QDialogButtonBox, QWidget,
-                              QVBoxLayout, QGridLayout, QLabel, QSpacerItem,
-                              QColor, QTabWidget, QIcon, QApplication, QPainter,
-                              QPicture, QBrush, QGroupBox, QPushButton)
-from guidata.qt.QtCore import Qt, QRect, QSize, Signal
+from qtpy.QtGui import (QColor, QIcon, QPainter,
+                        QPicture, QBrush)
+from qtpy.QtCore import Qt, QRect, QSize, Signal
+from qtpy.QtWidgets import (QDialog, QMessageBox, QDialogButtonBox, QWidget, QTabWidget,
+                            QApplication, QVBoxLayout, QGridLayout, QLabel, QSpacerItem,
+                            QGroupBox, QPushButton)
+
 from guidata.qt.compat import getopenfilename, getopenfilenames, getsavefilename
 
 from guidata.configtools import get_icon
@@ -76,17 +78,17 @@ class DataSetEditDialog(QDialog):
         bbox.rejected.connect(self.reject)
         bbox.clicked.connect(self.button_clicked)
         self.layout.addWidget(bbox)
-        
+
         self.setLayout(self.layout)
-        
+
         if parent is None:
             if not isinstance(icon, QIcon):
                 icon = get_icon(icon, default="guidata.svg")
             self.setWindowIcon(icon)
-        
+
         self.setModal(True)
         self.setWindowTitle(instance.get_title())
-        
+
         if size is not None:
             if isinstance(size, QSize):
                 self.resize(size)
@@ -100,17 +102,17 @@ class DataSetEditDialog(QDialog):
                 for edl in self.edit_layout:
                     edl.accept_changes()
                 self.apply_func(self.instance)
-    
+
     def setup_instance(self, instance):
         """Construct main layout"""
         grid = QGridLayout()
         grid.setAlignment(Qt.AlignTop)
         self.layout.addLayout(grid)
         self.edit_layout.append( self.layout_factory( instance, grid) )
-        
+
     def layout_factory(self, instance, grid ):
         """A factory method that produces instances of DataSetEditLayout
-        
+
         or derived classes (see DataSetShowDialog)
         """
         return DataSetEditLayout( self, instance, grid )
@@ -221,7 +223,7 @@ class DataSetEditLayout(object):
             if widget.is_active() and not widget.check():
                 return False
         return True
-    
+
     def accept_changes(self):
         """Accept changes made to widget inputs"""
         self.update_dataitems()
@@ -275,7 +277,7 @@ class DataSetEditLayout(object):
         line, col, span = self.items_pos[item.item]
         if col > 0:
             self.layout.addItem( QSpacerItem(20, 1), line, col*3-1 )
-            
+
         widget.place_on_grid( self.layout, line, col*3, col*3 + 1, 1, 3*span-2)
         try:
             widget.get()
@@ -299,7 +301,7 @@ class DataSetEditLayout(object):
         for widget in self.widgets:
             if widget is not except_this_one:
                 widget.get()
-        
+
 
 
 # Enregistrement des correspondances avec les widgets
@@ -373,7 +375,7 @@ class ShowColorWidget(DataSetShowWidget):
     def __init__(self, item, parent_layout):
         DataSetShowWidget.__init__(self, item, parent_layout)
         self.picture = None
-        
+
     def get(self):
         """Override AbstractDataSetWidget method"""
         value = self.item.get()
@@ -397,7 +399,7 @@ class ShowBooleanWidget(DataSetShowWidget):
         else:
             self.place_label(layout, row, label_column)
         layout.addWidget(self.group, row, widget_column, row_span, column_span)
-        
+
     def get(self):
         """Override AbstractDataSetWidget method"""
         DataSetShowWidget.get(self)
@@ -456,10 +458,10 @@ class DataSetShowGroupBox(QGroupBox):
         self.layout.addLayout(self.grid_layout)
         self.setLayout(self.layout)
         self.edit = self.get_edit_layout()
-        
+
     def get_edit_layout(self):
         """Return edit layout"""
-        return DataSetShowLayout(self, self.dataset, self.grid_layout) 
+        return DataSetShowLayout(self, self.dataset, self.grid_layout)
 
     def get(self):
         """Update group box contents from data item values"""
@@ -472,16 +474,16 @@ class DataSetShowGroupBox(QGroupBox):
 class DataSetEditGroupBox(DataSetShowGroupBox):
     """
     Group box widget including a DataSet
-    
+
     label: group box label (string)
     klass: guidata.DataSet class
     button_text: action button text (default: "Apply")
     button_icon: QIcon object or string (default "apply.png")
     """
-    
+
     #: Signal emitted when Apply button is clicked
     SIG_APPLY_BUTTON_CLICKED = Signal()
-    
+
     def __init__(self, label, klass, button_text=None, button_icon=None,
                  show_button=True, wordwrap=False, **kwargs):
         DataSetShowGroupBox.__init__(self, label, klass, wordwrap=wordwrap,
@@ -502,7 +504,7 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
     def get_edit_layout(self):
         """Return edit layout"""
         return DataSetEditLayout(self, self.dataset, self.grid_layout)
-        
+
     def set(self):
         """Update data item values from layout contents"""
         for widget in self.edit.widgets:

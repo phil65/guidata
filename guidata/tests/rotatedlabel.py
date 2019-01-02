@@ -13,11 +13,12 @@ RotatedLabel is derived from QLabel: it provides rotated text display.
 
 from __future__ import unicode_literals
 
-SHOW = True # Show test in GUI-based test launcher
-
-from guidata.qt.QtGui import QFrame, QGridLayout
-from guidata.qt.QtCore import Qt
+from qtpy.QtWidgets import QFrame, QGridLayout
+from qtpy.QtCore import Qt
 from guidata.qtwidgets import RotatedLabel
+
+SHOW = True  # Show test in GUI-based test launcher
+
 
 class Frame(QFrame):
     def __init__(self, parent=None):
@@ -32,9 +33,10 @@ class Frame(QFrame):
                                               bold=True),
                                  row, column, Qt.AlignCenter)
                 angle += 10
-            
+
+
 if __name__ == '__main__':
-    from guidata.qt.QtGui import QApplication
+    from qtpy.QtWidgets import QApplication
     import sys
     app = QApplication([])
     frame = Frame()

@@ -8,16 +8,16 @@
 spyderlib.qt.compat
 -------------------
 
-Transitional module providing compatibility functions intended to help 
+Transitional module providing compatibility functions intended to help
 migrating from PyQt to PySide.
 
 This module should be fully compatible with:
-    * PyQt >=v4.4
+    * PyQt >=v5.0
     * both PyQt API #1 and API #2
     * PySide
 """
 
-from ..qtpy.compat import *
+from qtpy.compat import *
 
 
 if __name__ == '__main__':
