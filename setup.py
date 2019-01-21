@@ -49,7 +49,7 @@ Simple example of ``guidata`` datasets embedded in an application window:
 
 See `documentation`_ for more details on the library and `changelog`_ for recent history of changes.
 
-Copyright © 2009-2015 CEA, Pierre Raybaut, licensed under the terms of the 
+Copyright © 2009-2015 CEA, Pierre Raybaut, licensed under the terms of the
 `CECILL License`_.
 
 .. _documentation: http://pythonhosted.org/guidata/
@@ -60,8 +60,8 @@ Copyright © 2009-2015 CEA, Pierre Raybaut, licensed under the terms of the
 Overview
 --------
 
-Based on the Qt Python binding module PyQt4, ``guidata`` is a Python library 
-generating graphical user interfaces for easy dataset editing and display. It 
+Based on the Qt Python binding module PyQt4, ``guidata`` is a Python library
+generating graphical user interfaces for easy dataset editing and display. It
 also provides helpers and application development tools for PyQt4.
 
 Generate GUIs to edit and display all kind of objects:
@@ -106,9 +106,9 @@ else:
 
 
 def build_chm_doc(libname):
-    """Return CHM documentation file (on Windows only), which is copied under 
-    {PythonInstallDir}\Doc, hence allowing Spyder to add an entry for opening 
-    package documentation in "Help" menu. This has no effect on a source 
+    """Return CHM documentation file (on Windows only), which is copied under
+    {PythonInstallDir}\Doc, hence allowing Spyder to add an entry for opening
+    package documentation in "Help" menu. This has no effect on a source
     distribution."""
     args = ''.join(sys.argv)
     if os.name == 'nt' and ('bdist' in args or 'build' in args):
@@ -138,32 +138,3 @@ def build_chm_doc(libname):
             print('Warning: CHM building process failed', file=sys.stderr)
 
 CHM_DOC = build_chm_doc(LIBNAME)
-
-
-setup(name=LIBNAME, version=version,
-      description=DESCRIPTION, long_description=LONG_DESCRIPTION,
-      packages=get_subpackages(LIBNAME),
-      package_data={LIBNAME:
-                    get_package_data(LIBNAME, ('.png', '.svg', '.mo'))},
-      data_files=[(r'Doc', [CHM_DOC])] if CHM_DOC else [],
-      entry_points={'gui_scripts':
-                    ['guidata-tests-py%d = guidata.tests:run'\
-                     % sys.version_info.major,]},
-      extras_require = {
-                        'Doc':  ["Sphinx>=1.1"],
-                        },
-      author = "Pierre Raybaut",
-      author_email = 'pierre.raybaut@gmail.com',
-      url = 'https://github.com/PierreRaybaut/%s' % LIBNAME,
-      license = 'CeCILL V2',
-      classifiers=CLASSIFIERS + [
-        'Operating System :: MacOS',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: OS Independent',
-        'Operating System :: POSIX',
-        'Operating System :: Unix',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        ],
-      )
