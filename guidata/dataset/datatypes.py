@@ -9,8 +9,8 @@
 dataset.datatypes
 =================
 
-The ``guidata.dataset.datatypes`` module contains implementation for 
-DataSets (DataSet, DataSetGroup, ...) and related objects (ItemProperty, 
+The ``guidata.dataset.datatypes`` module contains implementation for
+DataSets (DataSet, DataSetGroup, ...) and related objects (ItemProperty,
 ValueProp, ...).
 """
 
@@ -24,12 +24,12 @@ import re
 import collections
 
 from guidata.utils import utf8_to_unicode, update_dataset
-from guidata.py3compat import to_text_string, is_text_string, PY2
+from guidata.py3compat import to_text_string, is_text_string
 
 
 DEBUG_DESERIALIZE = False
 
- 
+
 class NoDefault:
     pass
 
@@ -37,7 +37,7 @@ class NoDefault:
 class ItemProperty(object):
     def __init__(self, callable=None):
         self.callable=callable
-    
+
     def __call__(self, instance, item, value):
         """Evaluate the value of the property given, the instance,
         the item and the value maintained in the instance by the item"""
@@ -108,10 +108,10 @@ class NotProp(ItemProperty):
     """Not property"""
     def __init__(self, prop):
         self.property = prop
-        
+
     def __call__(self, instance, item, value):
         return not self.property(instance, item, value)
-    
+
     def set(self, instance, item, value):
         self.property.set(instance, item, not value)
 
@@ -127,10 +127,10 @@ class FuncProp(ItemProperty):
         if invfunc is None:
             invfunc = func
         self.inverse_function = invfunc
-        
+
     def __call__(self, instance, item, value):
         return self.function(self.property(instance, item, value))
-    
+
     def set(self, instance, item, value):
         self.property.set(instance, item, self.inverse_function(value))
 
@@ -138,7 +138,7 @@ class FuncProp(ItemProperty):
 class DataItem(object):
     """
     DataSet data item
-    
+
     `label` : string
     `default` : any type, optional
     `help` : string Text displayed on data item's tooltip
@@ -171,11 +171,11 @@ class DataItem(object):
             return value(instance, self, self.get_value(instance))
         else:
             return value
-        
+
     def set_prop(self, realm, **kwargs):
         """Set one or several properties using
         the syntax set_prop(name1=value1, ..., nameX=valueX)
-        
+
         it returns self so that we can assign to the result like this:
 
         item = Item().set_prop(x=y)
@@ -209,17 +209,17 @@ class DataItem(object):
             else:
                 help = auto_help.capitalize()
         return help
-    
+
     def get_auto_help(self, instance):
         """
         Return the automatically generated part of data item's tooltip
         """
         return ""
-        
+
     def format_string(self, instance, value, fmt, func):
         """Apply format to string representation of the item's value"""
         return fmt % (func(value), )
-        
+
     def get_string_value(self, instance):
         """
         Return a formatted unicode representation of the item's value
@@ -256,7 +256,7 @@ class DataItem(object):
         """
         value = self.from_string(string_value)
         self.__set__(instance, value)
-    
+
     def set_default(self, instance):
         """
         Set data item's value to default
@@ -268,7 +268,7 @@ class DataItem(object):
         This is the visitor pattern's accept function.
         It calls the corresponding visit_MYCLASS method
         of the visitor object.
-        
+
         Python's allow a generic base class implementation of
         this method so there's no need to write an accept function
         for each derived class unless you need to override the
@@ -280,7 +280,7 @@ class DataItem(object):
 
     def __set__(self, instance, value):
         setattr(instance, "_"+self._name, value)
-        
+
     def __get__(self, instance, klass):
         if instance is not None:
             return getattr(instance, "_"+self._name, self._default)
@@ -299,7 +299,7 @@ class DataItem(object):
         """
         value = getattr(instance, "_"+self._name)
         return self.check_value(value)
-    
+
     def check_value(self, instance, value):
         """
         Check if `value` is valid for this data item
@@ -311,16 +311,16 @@ class DataItem(object):
         Transform string into valid data item's value
         """
         raise NotImplementedError()
-    
+
     def bind(self, instance):
         """
         Return a DataItemVariable instance bound to the data item
         """
         return DataItemVariable(self, instance)
-    
+
     def serialize(self, instance, writer):
         """Serialize this item using the writer object
-        
+
         this is a default implementation that should work for
         everything but new datatypes
         """
@@ -328,15 +328,15 @@ class DataItem(object):
         writer.write(value)
 
     def get_value_from_reader(self, reader):
-        """Reads value from the reader object, inside the try...except 
+        """Reads value from the reader object, inside the try...except
         statement defined in the base item `deserialize` method
-        
+
         This method is reimplemented in some child classes"""
         return reader.read_any()
 
     def deserialize(self, instance, reader):
         """Deserialize this item using the reader object
-        
+
         Default base implementation supposes the reader can
         detect expected datatype from the stream
         """
@@ -352,7 +352,7 @@ class DataItem(object):
             self.set_default(instance)
             return
         self.__set__(instance, value)
-        
+
 
 class Obj(object):
     """An object that helps build default instances for
@@ -365,7 +365,7 @@ class ObjectItem(DataItem):
     """Simple helper class implementing default
     for composite objects"""
     klass = None
-    
+
     def set_default(self, instance):
         """Make a copy of the default value
         """
@@ -376,7 +376,7 @@ class ObjectItem(DataItem):
 
     def deserialize(self, instance, reader):
         """Deserialize this item using the reader object
-        
+
         We build a new default object and deserialize it
         """
         value = self.klass()
@@ -387,7 +387,7 @@ class ObjectItem(DataItem):
 class DataItemProxy(object):
     """
     Proxy for DataItem objects
-    
+
     This class is needed to construct GroupItem class
     (see module guidata.qtwidgets)
     """
@@ -400,11 +400,11 @@ class DataItemProxy(object):
     def get_help(self, instance):
         """DataItem method proxy"""
         return self.item.get_help(instance)
-    
+
     def get_auto_help(self, instance):
         """DataItem method proxy"""
         return self.item.get_auto_help(instance)
-    
+
     def get_string_value(self, instance):
         """DataItem method proxy"""
         return self.item.get_string_value(instance)
@@ -428,7 +428,7 @@ class DataItemProxy(object):
     def check_item(self, instance):
         """DataItem method proxy"""
         return self.item.check_item(instance)
-    
+
     def check_value(self, instance, value):
         """DataItem method proxy"""
         return self.item.check_value(instance, value)
@@ -436,7 +436,7 @@ class DataItemProxy(object):
     def from_string(self, instance, string_value):
         """DataItem method proxy"""
         return self.item.from_string(instance, string_value)
-    
+
     def get_prop(self, realm, name, default=NoDefault):
         """DataItem method proxy"""
         return self.item.get_prop(realm, name, default)
@@ -462,13 +462,13 @@ class DataItemProxy(object):
 #            return bind(val, self.instance)
 #        else:
 #            return val
-    
+
 class DataItemVariable(object):
     """An instance of a DataItemVariable represent a binding between
     an item and a dataset.
-    
+
     could be called a bound property.
-    
+
     since DataItem instances are class attributes they need to have a
     DataSet instance to store their value. This class binds the two
     together.
@@ -501,12 +501,12 @@ class DataItemVariable(object):
     def get_help(self):
         """Re-implement DataItem method"""
         return self.item.get_help(self.instance)
-        
+
     def get_auto_help(self):
         """Re-implement DataItem method"""
         # XXX incohérent ?
         return self.item.get_auto_help(self.instance)
-        
+
     def get_string_value(self):
         """
         Return a unicode representation of the item's value
@@ -521,7 +521,7 @@ class DataItemVariable(object):
     def get(self):
         """Re-implement DataItem method"""
         return self.item.get_value(self.instance)
-    
+
     def set(self, value):
         """Re-implement DataItem method"""
         return self.item.__set__(self.instance, value)
@@ -529,11 +529,11 @@ class DataItemVariable(object):
     def set_from_string(self, string_value):
         """Re-implement DataItem method"""
         return self.item.set_from_string(self.instance, string_value)
-        
+
     def check_item(self):
         """Re-implement DataItem method"""
         return self.item.check_item(self.instance)
-    
+
     def check_value(self, value):
         """Re-implement DataItem method"""
         return self.item.check_value(value)
@@ -550,7 +550,7 @@ class DataItemVariable(object):
 class DataSetMeta(type):
     """
     DataSet metaclass
-    
+
     Create class attribute `_items`: list of the DataSet class attributes,
     created in the same order as these attributes were written
     """
@@ -560,7 +560,7 @@ class DataSetMeta(type):
             if getattr(base, "__metaclass__", None) is DataSetMeta:
                 for item in base._items:
                     items[item._name] = item
-                
+
         for attrname, value in list(dct.items()):
             if isinstance( value, DataItem ):
                 value.set_name(attrname)
@@ -572,10 +572,9 @@ class DataSetMeta(type):
         dct["_items"] = items_list
         return type.__new__(cls, name, bases, dct)
 
-if PY2:
-    Meta_Py3Compat = DataSetMeta(b'Meta_Py3Compat', (object, ), {})
-else:
-    Meta_Py3Compat = DataSetMeta('Meta_Py3Compat', (object, ), {})
+
+Meta_Py3Compat = DataSetMeta('Meta_Py3Compat', (object, ), {})
+
 
 class DataSet(Meta_Py3Compat):
     """
@@ -586,7 +585,7 @@ class DataSet(Meta_Py3Compat):
           (string: icon filename as in guidata/guiqwt image search paths)
     """
     __metaclass__ = DataSetMeta # keep it even with Python 3 (see DataSetMeta)
-    
+
     def __init__(self, title=None, comment=None, icon=''):
         self.__title = title
         self.__comment = comment
@@ -599,11 +598,11 @@ class DataSet(Meta_Py3Compat):
         self.__changed = False
         # Set default values
         self.set_defaults()
-    
+
     def _get_translation(self):
         """We try to find the translation function (_) from the module
         this class was created in
-        
+
         This function is unused but could be useful to translate strings that
         cannot be translated at the time they are created.
         """
@@ -635,27 +634,27 @@ class DataSet(Meta_Py3Compat):
         Return data set title
         """
         return self.__title
-    
+
     def get_comment(self):
         """
         Return data set comment
         """
         return self.__comment
-    
+
     def get_icon(self):
         """
         Return data set icon
         """
         return self.__icon
-    
+
     def set_defaults(self):
         """Set default values"""
         for item in self._items:
             item.set_default(self)
-        
+
     def __str__(self):
         return self.to_string(debug=False)
-    
+
     def check(self):
         """
         Check the dataset item values
@@ -684,7 +683,7 @@ class DataSet(Meta_Py3Compat):
         win = DataSetEditDialog(self, icon=self.__icon, parent=parent,
                                 apply=apply, size=size)
         return win.exec_()
-    
+
     def view(self, parent=None, size=None):
         """
         Open a dialog box to view data set
@@ -695,7 +694,7 @@ class DataSet(Meta_Py3Compat):
         win = DataSetShowDialog(self, icon=self.__icon, parent=parent,
                                 size=size)
         return win.exec_()
-        
+
     def to_string(self, debug=False, indent=None, align=False):
         """
         Return readable string representation of the data set
@@ -743,7 +742,7 @@ class DataSet(Meta_Py3Compat):
             if debug:
                 txt += " ("+item.__class__.__name__+")"
         return txt
-    
+
     def accept(self, vis):
         """
         helper function that passes the visitor to the accept methods of all
@@ -769,14 +768,14 @@ class DataSet(Meta_Py3Compat):
                         traceback.print_stack()
                         print(error, file=sys.stderr)
                     item.set_default(self)
-            
+
     def read_config(self, conf, section, option):
-        from guidata.userconfigio import UserConfigReader 
+        from guidata.userconfigio import UserConfigReader
         reader = UserConfigReader(conf, section, option)
         self.deserialize(reader)
-        
+
     def write_config(self, conf, section, option):
-        from guidata.userconfigio import UserConfigWriter 
+        from guidata.userconfigio import UserConfigWriter
         writer = UserConfigWriter(conf, section, option)
         self.serialize(writer)
 
@@ -796,7 +795,7 @@ class ActivableDataSet(DataSet):
     _active = True
     _ro_prop = GetAttrProp("_ro")
     _active_prop = GetAttrProp("_active")
-    
+
     def __init__(self, title=None, comment=None, icon=''):
         DataSet.__init__(self, title, comment, icon)
 #        self.set_readonly()
@@ -811,7 +810,7 @@ class ActivableDataSet(DataSet):
         klass.enable.set_prop("display", active=True,
                               hide=klass._ro_prop,
                               store=klass._active_prop)
-    
+
     def set_readonly(self):
         """
         The dataset is now in read-only mode, i.e. all data items are disabled
@@ -834,9 +833,9 @@ class DataSetGroup(object):
         * title [string]
         * icon [QIcon or string]: icon show on the button (optional)
           (string: icon filename as in guidata/guiqwt image search paths)
-    
+
     This class tries to mimics the DataSet interface.
-    
+
     The GUI should represent it as a notebook with one page for each
     contained dataset.
     """
@@ -847,34 +846,34 @@ class DataSetGroup(object):
             self.__title = title
         else:
             self.__title = self.__class__.__name__
-            
+
     def __str__(self):
         return "\n".join([dataset.__str__() for dataset in self.datasets])
-    
+
     def get_title(self):
         """
         Return data set group title
         """
         return self.__title
-    
+
     def get_comment(self):
         """
         Return data set group comment --> not implemented (will return None)
         """
         return None
-    
+
     def check(self):
         """
         Check data set group items
         """
         return [dataset.check() for dataset in self.datasets]
-    
+
     def text_edit(self):
         """
         Edit data set with text input only
         """
         raise NotImplementedError()
-    
+
     def edit(self, parent=None, apply=None):
         """
         Open a dialog box to edit data set
@@ -883,7 +882,7 @@ class DataSetGroup(object):
         win = DataSetGroupEditDialog(self, icon=self.__icon, parent=parent,
                                      apply=apply)
         return win.exec_()
-    
+
     def accept(self, vis):
         """
         helper function that passes the visitor to the accept methods of all
@@ -905,7 +904,7 @@ class BeginGroup(DataItem):
     """
     def serialize(self, instance, writer):
         pass
-    
+
     def deserialize(self, instance, reader):
         pass
 
@@ -919,7 +918,7 @@ class EndGroup(DataItem):
     """
     def serialize(self, instance, writer):
         pass
-    
+
     def deserialize(self, instance, reader):
         pass
 

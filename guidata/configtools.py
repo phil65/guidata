@@ -26,7 +26,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QHBoxLayout
 from guidata.utils import get_module_path, decode_fs_string
 
-from guidata.py3compat import is_unicode, to_text_string, PY3, is_text_string
+from guidata.py3compat import is_unicode, to_text_string, is_text_string
 
 IMG_PATH = []
 
@@ -64,10 +64,8 @@ def get_translation(modname, dirname=None):
         lgettext = _trans.lgettext
 
         def translate_gettext(x):
-            if not PY3 and is_unicode(x):
-                x = x.encode("utf-8")
             y = lgettext(x)
-            if is_text_string(y) and PY3:
+            if is_text_string(y):
                 return y
             else:
                 return to_text_string(y, "utf-8")

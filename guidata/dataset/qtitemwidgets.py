@@ -26,22 +26,13 @@ import numpy
 import collections
 import datetime
 
-try:
-    # PyQt4 4.3.3 on Windows (static DLLs) with py2exe installed:
-    # -> pythoncom must be imported first, otherwise py2exe's boot_com_servers
-    #    will raise an exception ("Unable to load DLL [...]") when calling any
-    #    of the QFileDialog static methods (getOpenFileName, ...)
-    import pythoncom
-except ImportError:
-    pass
-
 from qtpy.QtGui import (QIcon, QPixmap, QColor)
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (QHBoxLayout, QGridLayout, QColorDialog, QPushButton, QLineEdit, QCheckBox,
                             QComboBox, QTabWidget, QGroupBox, QDateTimeEdit,
                             QLabel, QTextEdit, QFrame, QDateEdit, QSlider,
                             QRadioButton, QVBoxLayout)
-from guidata.qt.compat import getexistingdirectory
+from qtpy.compat import getexistingdirectory
 try:
     from pyqt.QtCore import QStringList
 except ImportError:

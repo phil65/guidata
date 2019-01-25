@@ -38,7 +38,7 @@ from qtpy.QtWidgets import (QDialog, QMessageBox, QDialogButtonBox, QWidget, QTa
                             QApplication, QVBoxLayout, QGridLayout, QLabel, QSpacerItem,
                             QGroupBox, QPushButton)
 
-from guidata.qt.compat import getopenfilename, getopenfilenames, getsavefilename
+from qtpy.compat import getopenfilename, getopenfilenames, getsavefilename
 
 from guidata.configtools import get_icon
 from guidata.config import _

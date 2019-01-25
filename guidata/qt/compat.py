@@ -18,13 +18,3 @@ This module should be fully compatible with:
 """
 
 from qtpy.compat import *
-
-
-if __name__ == '__main__':
-    import guidata
-    _app = guidata.qapplication()
-    print(repr(getexistingdirectory()))
-    print(repr(getopenfilename(filters='*.py;;*.txt')))
-    print(repr(getopenfilenames(filters='*.py;;*.txt')))
-    print(repr(getsavefilename(filters='*.py;;*.txt')))
-    sys.exit()
