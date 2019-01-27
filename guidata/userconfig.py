@@ -3,9 +3,9 @@
 
 #    userconfig License Agreement (MIT License)
 #    ------------------------------------------
-#    
+#
 #    Copyright © 2009-2012 Pierre Raybaut
-#    
+#
 #    Permission is hereby granted, free of charge, to any person
 #    obtaining a copy of this software and associated documentation
 #    files (the "Software"), to deal in the Software without
@@ -14,10 +14,10 @@
 #    copies of the Software, and to permit persons to whom the
 #    Software is furnished to do so, subject to the following
 #    conditions:
-#    
+#
 #    The above copyright notice and this permission notice shall be
 #    included in all copies or substantial portions of the Software.
-#    
+#
 #    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 #    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 #    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -32,7 +32,7 @@
 userconfig
 ----------
 
-The ``guidata.userconfig`` module provides user configuration file (.ini file) 
+The ``guidata.userconfig`` module provides user configuration file (.ini file)
 management features based on ``ConfigParser`` (standard Python library).
 
 It is the exact copy of the open-source package `userconfig` (MIT license).
@@ -48,7 +48,8 @@ import os.path as osp
 import sys
 
 from guidata.py3compat import configparser as cp
-from guidata.py3compat import is_text_string, is_unicode, PY2
+from guidata.py3compat import is_text_string, is_unicode
+
 
 def _check_values(sections):
     # Checks if all key/value pairs are writable
@@ -65,8 +66,9 @@ def _check_values(sections):
         assert False
     else:
         import traceback
-        print("-"*30)
+        print("-" * 30)
         traceback.print_stack()
+
 
 def get_home_dir():
     """
@@ -74,7 +76,7 @@ def get_home_dir():
     """
     try:
         path = osp.expanduser('~')
-    except:
+    except Exception:
         path = ''
     for env_var in ('HOME', 'USERPROFILE', 'TMP'):
         if osp.isdir(path):
@@ -85,21 +87,22 @@ def get_home_dir():
     else:
         raise RuntimeError('Please define environment variable $HOME')
 
+
 def encode_to_utf8(x):
     """Encode unicode string in UTF-8 -- but only with Python 2"""
-    if PY2 and is_unicode(x):
-        return x.encode("utf-8")
-    else:
-        return x
-    
+    return x
+
+
 def get_config_dir():
     if sys.platform == "win32":
         # TODO: on windows config files usually go in
         return get_home_dir()
     return osp.join(get_home_dir(), ".config")
 
+
 class NoDefault:
     pass
+
 
 class UserConfig(cp.ConfigParser):
     """
@@ -107,17 +110,17 @@ class UserConfig(cp.ConfigParser):
     name: name of the config
     options: dictionnary containing options *or* list of tuples
     (section_name, options)
-    
+
     Note that 'get' and 'set' arguments number and type
     differ from the overriden methods
     """
-    
+
     default_section_name = 'main'
-    
+
     def __init__(self, defaults):
         cp.ConfigParser.__init__(self)
         self.name = "none"
-        self.raw = 0 # 0=substitutions are enabled / 1=raw config parser
+        self.raw = 0  # 0=substitutions are enabled / 1=raw config parser
         assert isinstance(defaults, dict)
         for _key, val in list(defaults.items()):
             assert isinstance(val, dict)
@@ -138,7 +141,7 @@ class UserConfig(cp.ConfigParser):
     def save(self):
         # In any case, the resulting config is saved in config file:
         self.__save()
-    
+
     def set_application(self, name, version, load=True, raw_mode=False):
         self.name = name
         self.raw = 1 if raw_mode else 0
@@ -161,23 +164,24 @@ class UserConfig(cp.ConfigParser):
     def check_default_values(self):
         """Check the static options for forbidden data types"""
         errors = []
+
         def _check(key, value):
             if value is None:
                 return
             if isinstance(value, dict):
                 for k, v in list(value.items()):
-                    _check(key+"{}", k)
-                    _check(key+"/"+k, v)
+                    _check(key + "{}", k)
+                    _check(key + "/" + k, v)
             elif isinstance(value, (list, tuple)):
                 for v in value:
-                    _check(key+"[]", v)
+                    _check(key + "[]", v)
             else:
                 if not isinstance(value, (bool, int, float, str)):
                     errors.append("Invalid value for %s: %r" % (key, value))
         for name, section in list(self.defaults.items()):
             assert isinstance(name, str)
             for key, value in list(section.items()):
-                    _check(key, value)
+                _check(key, value)
         if errors:
             for err in errors:
                 print(err)
@@ -186,7 +190,7 @@ class UserConfig(cp.ConfigParser):
     def get_version(self, version='0.0.0'):
         """Return configuration (not application!) version"""
         return self.get(self.default_section_name, 'version', version)
-        
+
     def set_version(self, version='0.0.0', save=True):
         """Set configuration (not application!) version"""
         self.set(self.default_section_name, 'version', version, save=save)
@@ -196,15 +200,10 @@ class UserConfig(cp.ConfigParser):
         Load config from the associated .ini file
         """
         try:
-            if PY2:
-                # Python 2
-                self.read(self.filename())
-            else:
-                # Python 3
-                self.read(self.filename(), encoding='utf-8')
+            self.read(self.filename(), encoding='utf-8')
         except cp.MissingSectionHeaderError:
             print("Warning: File contains no section headers.")
-        
+
     def __remove_deprecated_options(self):
         """
         Remove options which are present in the .ini file but not in defaults
@@ -215,7 +214,7 @@ class UserConfig(cp.ConfigParser):
                     self.remove_option(section, option)
                     if len(self.items(section, raw=self.raw)) == 0:
                         self.remove_section(section)
-        
+
     def __save(self):
         """
         Save config into the associated .ini file
@@ -223,21 +222,15 @@ class UserConfig(cp.ConfigParser):
         fname = self.filename()
         if osp.isfile(fname):
             os.remove(fname)
-        if PY2:
-            # Python 2
-            with open(fname, 'w') as configfile:
-                self.write(configfile)
-        else:
-            # Python 3
-            with open(fname, 'w', encoding='utf-8') as configfile:
-                self.write(configfile)
-                
+        with open(fname, 'w', encoding='utf-8') as configfile:
+            self.write(configfile)
+
     def filename(self):
         """
         Create a .ini filename located in user home directory
         """
         return osp.join(get_config_dir(), '.%s.ini' % self.name)
-        
+
     def cleanup(self):
         """
         Remove .ini file associated to config
@@ -261,11 +254,11 @@ class UserConfig(cp.ConfigParser):
         """
         for section, options in list(self.defaults.items()):
             for option in options:
-                value = options[ option ]
+                value = options[option]
                 self.__set(section, option, value, verbose)
         if save:
             self.__save()
-        
+
     def __check_section_option(self, section, option):
         """
         Private method to check section and option types
@@ -287,7 +280,7 @@ class UserConfig(cp.ConfigParser):
         section = self.__check_section_option(section, option)
         options = self.defaults.get(section, {})
         return options.get(option, NoDefault)
-                
+
     def get(self, section, option, default=NoDefault, raw=None, **kwargs):
         """
         Get an option
@@ -305,7 +298,7 @@ class UserConfig(cp.ConfigParser):
                 raise RuntimeError("Unknown section %r" % section)
             else:
                 self.add_section(section)
-        
+
         if not self.has_option(section, option):
             if default is NoDefault:
                 raise RuntimeError("Unknown option %r/%r" % (section, option))
@@ -330,10 +323,7 @@ class UserConfig(cp.ConfigParser):
                 value = eval(value)
             except:
                 pass
-        value = encode_to_utf8(value)
 
-        if PY2 and isinstance(value, str):
-            return value.decode("utf-8")
         return value
 
     def get_section(self, section):
@@ -347,12 +337,12 @@ class UserConfig(cp.ConfigParser):
         Private set method
         """
         if not self.has_section(section):
-            self.add_section( section )
+            self.add_section(section)
         if not is_text_string(value):
-            value = repr( value )
+            value = repr(value)
         if verbose:
             print('%s[ %s ] = %s' % (section, option, value))
-        cp.ConfigParser.set(self, section, option, encode_to_utf8(value))
+        cp.ConfigParser.set(self, section, option, value)
 
     def set_default(self, section, option, default_value):
         """
@@ -361,7 +351,7 @@ class UserConfig(cp.ConfigParser):
         """
         section = self.__check_section_option(section, option)
         options = self.defaults.setdefault(section, {})
-        options[option] = encode_to_utf8(default_value)
+        options[option] = default_value
 
     def set(self, section, option, value, verbose=False, save=True):
         """
@@ -384,11 +374,11 @@ class UserConfig(cp.ConfigParser):
         self.__set(section, option, value, verbose)
         if save:
             self.__save()
-            
+
     def remove_section(self, section):
         cp.ConfigParser.remove_section(self, section)
         self.__save()
-            
+
     def remove_option(self, section, option):
         cp.ConfigParser.remove_option(self, section, option)
         self.__save()

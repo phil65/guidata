@@ -35,8 +35,9 @@ class NoDefault:
 
 
 class ItemProperty(object):
+
     def __init__(self, callable=None):
-        self.callable=callable
+        self.callable = callable
 
     def __call__(self, instance, item, value):
         """Evaluate the value of the property given, the instance,
@@ -51,11 +52,13 @@ class ItemProperty(object):
         raise NotImplementedError
 
 
-FMT_GROUPS=re.compile(r"(?<!%)%\((\w+)\)")
+FMT_GROUPS = re.compile(r"(?<!%)%\((\w+)\)")
+
 
 class FormatProp(ItemProperty):
     """A Property that returns a string to help
     custom read-only representation of items"""
+
     def __init__(self, fmt, ignore_error=True):
         """fmt is a format string
         it can contain a single anonymous substition or
@@ -75,13 +78,15 @@ class FormatProp(ItemProperty):
             return self.fmt % dic
         except TypeError:
             if not self.ignore_error:
-                print("Wrong Format for %s : %r %% %r"\
+                print("Wrong Format for %s : %r %% %r"
                       % (item._name, self.fmt, dic))
                 raise
+
 
 class GetAttrProp(ItemProperty):
     """A property that matches the value of
     an instance's attribute"""
+
     def __init__(self, attr):
         self.attr = attr
 
@@ -92,9 +97,11 @@ class GetAttrProp(ItemProperty):
     def set(self, instance, item, value):
         setattr(instance, self.attr, value)
 
+
 class ValueProp(ItemProperty):
     """A property that retrieves a value stored elsewhere
     """
+
     def __init__(self, value):
         self.value = value
 
@@ -104,8 +111,10 @@ class ValueProp(ItemProperty):
     def set(self, instance, item, value):
         self.value = value
 
+
 class NotProp(ItemProperty):
     """Not property"""
+
     def __init__(self, prop):
         self.property = prop
 
@@ -115,12 +124,14 @@ class NotProp(ItemProperty):
     def set(self, instance, item, value):
         self.property.set(instance, item, not value)
 
+
 class FuncProp(ItemProperty):
     """An 'operator property'
     prop: ItemProperty instance
     func: function
     invfunc: inverse function (optional)
     """
+
     def __init__(self, prop, func, invfunc=None):
         self.property = prop
         self.function = func
@@ -151,7 +162,7 @@ class DataItem(object):
         self._name = None
         self._default = default
         self._help = utf8_to_unicode(help)
-        self._props = {} # a dict realm->dict containing realm-specific properties
+        self._props = {}  # a dict realm->dict containing realm-specific properties
         self.set_prop("display", col=0, colspan=None,
                       label=utf8_to_unicode(label))
         self.set_prop('data', check_value=check)
@@ -231,7 +242,7 @@ class DataItem(object):
             return repval
         else:
             fmt = self.get_prop_value("display", instance, "format", "%s")
-            func = self.get_prop_value("display", instance, "func", lambda x:x)
+            func = self.get_prop_value("display", instance, "func", lambda x: x)
             if isinstance(fmt, collections.Callable) and value is not None:
                 return fmt(func(value))
             elif is_text_string(fmt):
@@ -274,16 +285,16 @@ class DataItem(object):
         for each derived class unless you need to override the
         default behavior
         """
-        funcname = "visit_"+self.__class__.__name__
+        funcname = "visit_" + self.__class__.__name__
         func = getattr(visitor, funcname)
         func(self)
 
     def __set__(self, instance, value):
-        setattr(instance, "_"+self._name, value)
+        setattr(instance, "_" + self._name, value)
 
     def __get__(self, instance, klass):
         if instance is not None:
-            return getattr(instance, "_"+self._name, self._default)
+            return getattr(instance, "_" + self._name, self._default)
         else:
             return self
 
@@ -297,7 +308,7 @@ class DataItem(object):
         """
         Check data item's current value (calling method check_value)
         """
-        value = getattr(instance, "_"+self._name)
+        value = getattr(instance, "_" + self._name)
         return self.check_value(value)
 
     def check_value(self, instance, value):
@@ -357,6 +368,7 @@ class DataItem(object):
 class Obj(object):
     """An object that helps build default instances for
     ObjectItems"""
+
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -391,6 +403,7 @@ class DataItemProxy(object):
     This class is needed to construct GroupItem class
     (see module guidata.qtwidgets)
     """
+
     def __init__(self, item):
         self.item = item
 
@@ -463,6 +476,7 @@ class DataItemProxy(object):
 #        else:
 #            return val
 
+
 class DataItemVariable(object):
     """An instance of a DataItemVariable represent a binding between
     an item and a dataset.
@@ -473,6 +487,7 @@ class DataItemVariable(object):
     DataSet instance to store their value. This class binds the two
     together.
     """
+
     def __init__(self, item, instance):
         self.item = item
         self.instance = instance
@@ -562,13 +577,13 @@ class DataSetMeta(type):
                     items[item._name] = item
 
         for attrname, value in list(dct.items()):
-            if isinstance( value, DataItem ):
+            if isinstance(value, DataItem):
                 value.set_name(attrname)
                 if attrname in items:
                     value._order = items[attrname]._order
                 items[attrname] = value
         items_list = list(items.values())
-        items_list.sort(key=lambda x:x._order)
+        items_list.sort(key=lambda x: x._order)
         dct["_items"] = items_list
         return type.__new__(cls, name, bases, dct)
 
@@ -584,7 +599,7 @@ class DataSet(Meta_Py3Compat):
         * icon [QIcon or string]: icon show on the button (optional)
           (string: icon filename as in guidata/guiqwt image search paths)
     """
-    __metaclass__ = DataSetMeta # keep it even with Python 3 (see DataSetMeta)
+    __metaclass__ = DataSetMeta  # keep it even with Python 3 (see DataSetMeta)
 
     def __init__(self, title=None, comment=None, icon=''):
         self.__title = title
@@ -610,7 +625,7 @@ class DataSet(Meta_Py3Compat):
         if hasattr(module, "_"):
             return module._
         else:
-            return lambda x:x
+            return lambda x: x
 
     def _compute_title_and_comment(self):
         """
@@ -702,7 +717,8 @@ class DataSet(Meta_Py3Compat):
         """
         if indent is None:
             indent = "\n    "
-        txt = self.__title+":"
+        txt = self.__title + ":"
+
         def _get_label(item):
             if debug:
                 return item._name
@@ -717,17 +733,17 @@ class DataSet(Meta_Py3Compat):
         for item in self._items:
             if isinstance(item, ObjectItem):
                 composite_dataset = item.get_value(self)
-                txt += indent+composite_dataset.to_string(debug=debug,
-                                                          indent=indent+"  ")
+                txt += indent + composite_dataset.to_string(debug=debug,
+                                                            indent=indent + "  ")
                 continue
             elif isinstance(item, BeginGroup):
-                txt += indent+item._name+":"
+                txt += indent + item._name + ":"
                 indent += "  "
                 continue
             elif isinstance(item, EndGroup):
                 indent = indent[:-2]
                 continue
-            value = getattr(self, "_"+item._name)
+            value = getattr(self, "_" + item._name)
             if value is None:
                 value_str = "-"
             else:
@@ -738,9 +754,9 @@ class DataSet(Meta_Py3Compat):
                 label = item.get_prop_value("display", self, "label")
             if length:
                 label = label.ljust(length)
-            txt += indent+label+": "+value_str
+            txt += indent + label + ": " + value_str
             if debug:
-                txt += " ("+item.__class__.__name__+")"
+                txt += f" ({item.__class__.__name__})"
         return txt
 
     def accept(self, vis):
@@ -839,6 +855,7 @@ class DataSetGroup(object):
     The GUI should represent it as a notebook with one page for each
     contained dataset.
     """
+
     def __init__(self, datasets, title=None, icon=''):
         self.__icon = icon
         self.datasets = datasets
@@ -891,17 +908,21 @@ class DataSetGroup(object):
         for dataset in self.datasets:
             dataset.accept(vis)
 
+
 class GroupItem(DataItemProxy):
     """GroupItem proxy"""
+
     def __init__(self, item):
         DataItemProxy.__init__(self, item)
         self.group = []
+
 
 class BeginGroup(DataItem):
     """
     Data item which does not represent anything
     but a begin flag to define a data set group
     """
+
     def serialize(self, instance, writer):
         pass
 
@@ -911,23 +932,29 @@ class BeginGroup(DataItem):
     def get_group(self):
         return GroupItem(self)
 
+
 class EndGroup(DataItem):
     """
     Data item which does not represent anything
     but an end flag to define a data set group
     """
+
     def serialize(self, instance, writer):
         pass
 
     def deserialize(self, instance, reader):
         pass
 
+
 class TabGroupItem(GroupItem):
     pass
 
+
 class BeginTabGroup(BeginGroup):
+
     def get_group(self):
         return TabGroupItem(self)
+
 
 class EndTabGroup(EndGroup):
     pass
