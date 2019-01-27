@@ -43,6 +43,7 @@ class DataSetEditDialog(QDialog):
     """
     Dialog box for DataSet editing
     """
+
     def __init__(self, instance, icon='', parent=None, apply=None,
                  wordwrap=True, size=None):
         QDialog.__init__(self, parent)
@@ -54,16 +55,17 @@ class DataSetEditDialog(QDialog):
             label.setWordWrap(wordwrap)
             self.layout.addWidget(label)
         self.instance = instance
-        self.edit_layout = [  ]
+        self.edit_layout = []
 
-        self.setup_instance( instance )
+        self.setup_instance(instance)
 
         if apply is not None:
             apply_button = QDialogButtonBox.Apply
         else:
             apply_button = QDialogButtonBox.NoButton
-        bbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-                                | apply_button )
+        bbox = QDialogButtonBox(QDialogButtonBox.Ok |
+                                QDialogButtonBox.Cancel |
+                                apply_button)
         self.bbox = bbox
         bbox.accepted.connect(self.accept)
         bbox.rejected.connect(self.reject)
@@ -88,7 +90,7 @@ class DataSetEditDialog(QDialog):
 
     def button_clicked(self, button):
         role = self.bbox.buttonRole(button)
-        if role==QDialogButtonBox.ApplyRole and self.apply_func is not None:
+        if role == QDialogButtonBox.ApplyRole and self.apply_func is not None:
             if self.check():
                 for edl in self.edit_layout:
                     edl.accept_changes()
@@ -99,21 +101,21 @@ class DataSetEditDialog(QDialog):
         grid = QGridLayout()
         grid.setAlignment(Qt.AlignTop)
         self.layout.addLayout(grid)
-        self.edit_layout.append( self.layout_factory( instance, grid) )
+        self.edit_layout.append(self.layout_factory(instance, grid))
 
-    def layout_factory(self, instance, grid ):
+    def layout_factory(self, instance, grid):
         """A factory method that produces instances of DataSetEditLayout
 
         or derived classes (see DataSetShowDialog)
         """
-        return DataSetEditLayout( self, instance, grid )
+        return DataSetEditLayout(self, instance, grid)
 
     def child_title(self, item):
         """Return data item title combined with QApplication title"""
         app_name = QApplication.applicationName()
         if not app_name:
             app_name = self.instance.get_title()
-        return "%s - %s" % ( app_name, item.label() )
+        return "%s - %s" % (app_name, item.label())
 
     def check(self):
         is_ok = True
@@ -122,8 +124,8 @@ class DataSetEditDialog(QDialog):
                 is_ok = False
         if not is_ok:
             QMessageBox.warning(self, self.instance.get_title(),
-                        _("Some required entries are incorrect")+"\n"+\
-                        _("Please check highlighted fields."))
+                                _("Some required entries are incorrect") + "\n" +
+                                _("Please check highlighted fields."))
             return False
         return True
 
@@ -139,6 +141,7 @@ class DataSetGroupEditDialog(DataSetEditDialog):
     """
     Tabbed dialog box for DataSet editing
     """
+
     def setup_instance(self, instance):
         """Override DataSetEditDialog method"""
         from guidata.dataset.datatypes import DataSetGroup
@@ -154,16 +157,15 @@ class DataSetGroupEditDialog(DataSetEditDialog):
                 label.setWordWrap(self.wordwrap)
                 layout.addWidget(label)
             grid = QGridLayout()
-            self.edit_layout.append( self.layout_factory(dataset, grid) )
+            self.edit_layout.append(self.layout_factory(dataset, grid))
             layout.addLayout(grid)
             page = QWidget()
             page.setLayout(layout)
             if dataset.get_icon():
-                tabs.addTab( page, get_icon(dataset.get_icon()),
-                             dataset.get_title() )
+                tabs.addTab(page, get_icon(dataset.get_icon()),
+                            dataset.get_title())
             else:
-                tabs.addTab( page, dataset.get_title() )
-
+                tabs.addTab(page, dataset.get_title())
 
 
 class DataSetEditLayout(object):
@@ -183,29 +185,29 @@ class DataSetEditLayout(object):
         self.layout = layout
         self.first_line = first_line
         self.widgets = []
-        self.linenos = {} # prochaine ligne à remplir par colonne
+        self.linenos = {}  # prochaine ligne à remplir par colonne
         self.items_pos = {}
         if not items:
             items = self.instance._items
-        items = self.transform_items( items )
-        self.setup_layout( items )
+        items = self.transform_items(items)
+        self.setup_layout(items)
 
     def transform_items(self, items):
         """
         Handle group of items: transform items into a GroupItem instance
         if they are located between BeginGroup and EndGroup
         """
-        item_lists = [ [] ]
+        item_lists = [[]]
         for item in items:
             if isinstance(item, BeginGroup):
                 item = item.get_group()
                 item_lists[-1].append(item)
-                item_lists.append( item.group )
+                item_lists.append(item.group)
             elif isinstance(item, EndGroup):
                 item_lists.pop()
             else:
                 item_lists[-1].append(item)
-        assert len(item_lists)==1
+        assert len(item_lists) == 1
         return item_lists[-1]
 
     def check_all_values(self):
@@ -226,13 +228,13 @@ class DataSetEditLayout(object):
             if not span:
                 return col
             else:
-                return col+span-1
-        colmax = max( [ last_col(item.get_prop("display", "col"),
-                                 item.get_prop("display", "colspan"))
-                        for item in items ] )
+                return col + span - 1
+        colmax = max([last_col(item.get_prop("display", "col"),
+                               item.get_prop("display", "colspan"))
+                      for item in items])
         self.items_pos = {}
         line = self.first_line - 1
-        last_item = [-1, 0, colmax ]
+        last_item = [-1, 0, colmax]
         for item in items:
             beg = item.get_prop("display", "col")
             span = item.get_prop("display", "colspan")
@@ -243,7 +245,7 @@ class DataSetEditLayout(object):
                 #  est avant la colonne de debut de l'item précédent
                 line += 1
             else:
-                last_item[2] = beg-last_item[1]
+                last_item[2] = beg - last_item[1]
             last_item = [line, beg, span]
             self.items_pos[item] = last_item
 
@@ -252,14 +254,14 @@ class DataSetEditLayout(object):
             if hide:
                 continue
             widget = self.build_widget(item)
-            self.add_row( widget )
+            self.add_row(widget)
 
         self.refresh_widgets()
 
     def build_widget(self, item):
         factory = self._widget_factory[type(item)]
-        widget = factory( item.bind(self.instance), self )
-        self.widgets.append( widget )
+        widget = factory(item.bind(self.instance), self)
+        self.widgets.append(widget)
         return widget
 
     def add_row(self, widget):
@@ -267,9 +269,9 @@ class DataSetEditLayout(object):
         item = widget.item
         line, col, span = self.items_pos[item.item]
         if col > 0:
-            self.layout.addItem( QSpacerItem(20, 1), line, col*3-1 )
+            self.layout.addItem(QSpacerItem(20, 1), line, col * 3 - 1)
 
-        widget.place_on_grid( self.layout, line, col*3, col*3 + 1, 1, 3*span-2)
+        widget.place_on_grid(self.layout, line, col * 3, col * 3 + 1, 1, 3 * span - 2)
         try:
             widget.get()
         except Exception:
@@ -294,18 +296,17 @@ class DataSetEditLayout(object):
                 widget.get()
 
 
-
 # Enregistrement des correspondances avec les widgets
 from guidata.dataset.qtitemwidgets import (LineEditWidget, TextEditWidget,
-                CheckBoxWidget, ColorWidget, FileWidget, DirectoryWidget,
-                ChoiceWidget, MultipleChoiceWidget, FloatArrayWidget,
-                GroupWidget, AbstractDataSetWidget, ButtonWidget,
-                TabGroupWidget, DateWidget, DateTimeWidget, SliderWidget,
-                FloatSliderWidget)
+                                           CheckBoxWidget, ColorWidget, FileWidget, DirectoryWidget,
+                                           ChoiceWidget, MultipleChoiceWidget, FloatArrayWidget,
+                                           GroupWidget, AbstractDataSetWidget, ButtonWidget,
+                                           TabGroupWidget, DateWidget, DateTimeWidget, SliderWidget,
+                                           FloatSliderWidget)
 from guidata.dataset.dataitems import (FloatItem, StringItem, TextItem, IntItem,
-                BoolItem, ColorItem, FileOpenItem, FilesOpenItem, FileSaveItem,
-                DirectoryItem, ChoiceItem, ImageChoiceItem, MultipleChoiceItem,
-                FloatArrayItem, ButtonItem, DateItem, DateTimeItem, DictItem)
+                                       BoolItem, ColorItem, FileOpenItem, FilesOpenItem, FileSaveItem,
+                                       DirectoryItem, ChoiceItem, ImageChoiceItem, MultipleChoiceItem,
+                                       FloatArrayItem, ButtonItem, DateItem, DateTimeItem, DictItem)
 
 DataSetEditLayout.register(GroupItem, GroupWidget)
 DataSetEditLayout.register(TabGroupItem, TabGroupWidget)
@@ -319,11 +320,11 @@ DataSetEditLayout.register(DateItem, DateWidget)
 DataSetEditLayout.register(DateTimeItem, DateTimeWidget)
 DataSetEditLayout.register(ColorItem, ColorWidget)
 DataSetEditLayout.register(FileOpenItem, lambda item,
-                           parent: FileWidget(item, parent, getopenfilename) )
+                           parent: FileWidget(item, parent, getopenfilename))
 DataSetEditLayout.register(FilesOpenItem, lambda item,
-                           parent: FileWidget(item, parent, getopenfilenames) )
+                           parent: FileWidget(item, parent, getopenfilenames))
 DataSetEditLayout.register(FileSaveItem, lambda item,
-                           parent: FileWidget(item, parent, getsavefilename) )
+                           parent: FileWidget(item, parent, getsavefilename))
 DataSetEditLayout.register(DirectoryItem, DirectoryWidget)
 DataSetEditLayout.register(ChoiceItem, ChoiceWidget)
 DataSetEditLayout.register(ImageChoiceItem, ChoiceWidget)
@@ -338,18 +339,20 @@ QLabel { font-weight: bold; color: blue }
 QLabel:disabled { font-weight: bold; color: grey }
 """
 
+
 class DataSetShowWidget(AbstractDataSetWidget):
     """Read-only base widget"""
     READ_ONLY = True
+
     def __init__(self, item, parent_layout):
         AbstractDataSetWidget.__init__(self, item, parent_layout)
         self.group = QLabel()
         wordwrap = item.get_prop_value("display", "wordwrap", False)
         self.group.setWordWrap(wordwrap)
         self.group.setToolTip(item.get_help())
-        self.group.setStyleSheet( LABEL_CSS )
+        self.group.setStyleSheet(LABEL_CSS)
         self.group.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        #self.group.setEnabled(False)
+        # self.group.setEnabled(False)
 
     def get(self):
         """Override AbstractDataSetWidget method"""
@@ -361,8 +364,10 @@ class DataSetShowWidget(AbstractDataSetWidget):
         """Read only..."""
         pass
 
+
 class ShowColorWidget(DataSetShowWidget):
     """Read-only color item widget"""
+
     def __init__(self, item, parent_layout):
         DataSetShowWidget.__init__(self, item, parent_layout)
         self.picture = None
@@ -379,8 +384,10 @@ class ShowColorWidget(DataSetShowWidget):
             painter.end()
             self.group.setPicture(self.picture)
 
+
 class ShowBooleanWidget(DataSetShowWidget):
     """Read-only bool item widget"""
+
     def place_on_grid(self, layout, row, label_column, widget_column,
                       row_span=1, column_span=1):
         """Override AbstractDataSetWidget method"""
@@ -408,11 +415,13 @@ class DataSetShowLayout(DataSetEditLayout):
     """Read-only layout"""
     _widget_factory = {}
 
+
 class DataSetShowDialog(DataSetEditDialog):
     """Read-only dialog box"""
-    def layout_factory(self, instance, grid ):
+
+    def layout_factory(self, instance, grid):
         """Override DataSetEditDialog method"""
-        return DataSetShowLayout( self, instance, grid )
+        return DataSetShowLayout(self, instance, grid)
 
 DataSetShowLayout.register(GroupItem, GroupWidget)
 DataSetShowLayout.register(TabGroupItem, TabGroupWidget)
@@ -424,9 +433,9 @@ DataSetShowLayout.register(BoolItem, ShowBooleanWidget)
 DataSetShowLayout.register(DateItem, DataSetShowWidget)
 DataSetShowLayout.register(DateTimeItem, DataSetShowWidget)
 DataSetShowLayout.register(ColorItem, ShowColorWidget)
-DataSetShowLayout.register(FileOpenItem, DataSetShowWidget )
-DataSetShowLayout.register(FilesOpenItem, DataSetShowWidget )
-DataSetShowLayout.register(FileSaveItem, DataSetShowWidget )
+DataSetShowLayout.register(FileOpenItem, DataSetShowWidget)
+DataSetShowLayout.register(FilesOpenItem, DataSetShowWidget)
+DataSetShowLayout.register(FileSaveItem, DataSetShowWidget)
 DataSetShowLayout.register(DirectoryItem, DataSetShowWidget)
 DataSetShowLayout.register(ChoiceItem, DataSetShowWidget)
 DataSetShowLayout.register(ImageChoiceItem, DataSetShowWidget)
@@ -436,6 +445,7 @@ DataSetShowLayout.register(FloatArrayItem, DataSetShowWidget)
 
 class DataSetShowGroupBox(QGroupBox):
     """Group box widget showing a read-only DataSet"""
+
     def __init__(self, label, klass, wordwrap=False, **kwargs):
         QGroupBox.__init__(self, label)
         self.klass = klass
@@ -508,4 +518,4 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
         app_name = QApplication.applicationName()
         if not app_name:
             app_name = to_text_string(self.title())
-        return "%s - %s" % ( app_name, item.label() )
+        return "%s - %s" % (app_name, item.label())
