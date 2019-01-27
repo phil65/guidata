@@ -9,7 +9,7 @@
 
 from __future__ import print_function
 
-SHOW = False # Do not show test in GUI-based test launcher
+SHOW = False  # Do not show test in GUI-based test launcher
 
 from guidata.config import _
 

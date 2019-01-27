@@ -46,9 +46,10 @@ def get_tests(test_package):
 
 
 class TestModule(object):
+
     def __init__(self, test_module):
         self.module = test_module
-        self.filename = osp.splitext(osp.abspath(test_module.__file__))[0]+'.py'
+        self.filename = osp.splitext(osp.abspath(test_module.__file__))[0] + '.py'
         if not osp.isfile(self.filename):
             self.filename += 'w'
 
@@ -70,13 +71,14 @@ class TestModule(object):
         # (useful when the program is executed from Spyder, for example)
         os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
 
-        command = [sys.executable, '"'+self.filename+'"']
+        command = [sys.executable, '"' + self.filename + '"']
         if args:
             command.append(args)
         subprocess.Popen(" ".join(command), shell=True)
 
 
 class TestPropertiesWidget(QWidget):
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         font = QFont(get_family(MONOSPACE), 10, QFont.Normal)
@@ -124,6 +126,7 @@ class TestPropertiesWidget(QWidget):
 
 
 class TestLauncherWindow(QSplitter):
+
     def __init__(self, package, parent=None):
         QSplitter.__init__(self, parent)
         self.setWindowTitle(_("Tests - %s module") % package.__name__)
@@ -143,12 +146,12 @@ class TestLauncherWindow(QSplitter):
         self.addWidget(self.properties)
 
         self.properties.run_button.clicked.connect(
-                                lambda: tests[listwidget.currentRow()].run())
+            lambda: tests[listwidget.currentRow()].run())
         self.properties.quit_button.clicked.connect(self.close)
         listwidget.currentRowChanged.connect(
-                            lambda row: self.properties.set_item(tests[row]))
+            lambda row: self.properties.set_item(tests[row]))
         listwidget.itemActivated.connect(
-                            lambda: tests[listwidget.currentRow()].run())
+            lambda: tests[listwidget.currentRow()].run())
         listwidget.setCurrentRow(0)
 
         QShortcut(QKeySequence("Escape"), self, self.close)
@@ -166,4 +169,3 @@ def run_testlauncher(package):
     win = TestLauncherWindow(package)
     win.show()
     app.exec_()
-

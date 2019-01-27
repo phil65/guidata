@@ -21,6 +21,7 @@ SHOW = True  # Show test in GUI-based test launcher
 
 
 class Frame(QFrame):
+
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
         layout = QGridLayout()

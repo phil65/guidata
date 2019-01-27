@@ -69,6 +69,7 @@ class OtherDataSet(DataSet):
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self):
         QMainWindow.__init__(self)
         self.setWindowIcon(get_icon('python.png'))

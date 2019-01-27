@@ -15,13 +15,14 @@ using one group parameter (a boolean item).
 
 from __future__ import print_function
 
-SHOW = True # Show test in GUI-based test launcher
+SHOW = True  # Show test in GUI-based test launcher
 
 from guidata.dataset.datatypes import DataSet, BeginGroup, EndGroup, ValueProp
 from guidata.dataset.dataitems import BoolItem, FloatItem
 
 prop1 = ValueProp(False)
 prop2 = ValueProp(False)
+
 
 class GroupSelection(DataSet):
     """
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     # Create QApplication
     import guidata
     _app = guidata.qapplication()
-    
+
     prm = GroupSelection()
     prm.edit()
     print(prm)

@@ -9,10 +9,11 @@
 
 from __future__ import print_function
 
-SHOW = False # Do not show test in GUI-based test launcher
+SHOW = False  # Do not show test in GUI-based test launcher
 
 from guidata.dataset.datatypes import DataSet
 from guidata.dataset.dataitems import FloatItem, IntItem
+
 
 class Parameters(DataSet):
     height = FloatItem("Height", min=1, max=250, help="height in cm")
