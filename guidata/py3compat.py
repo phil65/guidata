@@ -57,20 +57,24 @@ def is_text_string(obj):
     # Python 3
     return isinstance(obj, str)
 
+
 def is_binary_string(obj):
     """Return True if `obj` is a binary string, False if it is anything else"""
     # Python 3
     return isinstance(obj, bytes)
+
 
 def is_string(obj):
     """Return True if `obj` is a text or binary Python string object,
     False if it is anything else, like a QString (Python 2, PyQt API #1)"""
     return is_text_string(obj) or is_binary_string(obj)
 
+
 def is_unicode(obj):
     """Return True if `obj` is unicode"""
     # Python 3
     return isinstance(obj, str)
+
 
 def to_text_string(obj, encoding=None):
     """Convert `obj` to (unicode) text string"""
@@ -82,6 +86,7 @@ def to_text_string(obj, encoding=None):
         return obj
     else:
         return str(obj, encoding)
+
 
 def to_binary_string(obj, encoding=None):
     """Convert `obj` to binary string (bytes in Python 3, str in Python 2)"""
@@ -97,10 +102,12 @@ def get_func_code(func):
     # Python 3
     return func.__code__
 
+
 def get_func_name(func):
     """Return function name"""
     # Python 3
     return func.__name__
+
 
 def get_func_defaults(func):
     """Return function default argument values"""
@@ -117,10 +124,12 @@ def get_meth_func(obj):
     # Python 3
     return obj.__func__
 
+
 def get_meth_class_inst(obj):
     """Return method class instance"""
     # Python 3
     return obj.__self__
+
 
 def get_meth_class(obj):
     """Return method class"""
@@ -135,9 +144,12 @@ def get_meth_class(obj):
 # Python 3
 input = input
 getcwd = os.getcwd
+
+
 def cmp(a, b):
     return (a > b) - (a < b)
 str_lower = str.lower
+
 
 def qbytearray_to_str(qba):
     """Convert QByteArray object to str in a way compatible with Python 2/3"""
