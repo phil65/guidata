@@ -16,8 +16,6 @@ This module should be fully compatible with:
     * Python 3
 """
 
-from __future__ import print_function
-
 
 TEXT_TYPES = (str,)
 INT_TYPES = (int,)
@@ -35,12 +33,6 @@ def is_binary_string(obj):
     """Return True if `obj` is a binary string, False if it is anything else"""
     # Python 3
     return isinstance(obj, bytes)
-
-
-def is_string(obj):
-    """Return True if `obj` is a text or binary Python string object,
-    False if it is anything else, like a QString (Python 2, PyQt API #1)"""
-    return is_text_string(obj) or is_binary_string(obj)
 
 
 def is_unicode(obj):

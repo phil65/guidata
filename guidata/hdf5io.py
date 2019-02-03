@@ -15,7 +15,6 @@ import sys
 from uuid import uuid1
 
 import h5py
-import numpy as np
 
 from guidata.userconfigio import BaseIOHandler, WriterMixin
 
@@ -80,54 +79,6 @@ class Attr(object):
         self.set_value(struct, value)
 
 
-class Dset(Attr):
-    """
-    Generic load/save for an hdf5 dataset:
-    scalar=float -> used to convert the value when it is scalar
-    """
-
-    def __init__(self, hdf_name, struct_name=None, type=None, scalar=None,
-                 optional=False):
-        Attr.__init__(self, hdf_name, struct_name, type, optional)
-        self.scalar = scalar
-
-    def save(self, group, struct):
-        value = self.get_value(struct)
-        if isinstance(value, float):
-            value = np.float64(value)
-        elif isinstance(value, int):
-            value = np.int32(value)
-        if value is None or value.size == 0:
-            value = np.array([0.0])
-        if value.shape == ():
-            value = value.reshape((1,))
-        group.require_dataset(self.hdf_name, shape=value.shape,
-                              dtype=value.dtype, data=value,
-                              compression="gzip", compression_opts=1)
-
-    def load(self, group, struct):
-        if self.optional:
-            if self.hdf_name not in group:
-                self.set_value(struct, None)
-                return
-        try:
-            value = group[self.hdf_name][...]
-        except KeyError:
-            raise KeyError('Unable to locate dataset %s' % self.hdf_name)
-        if self.scalar is not None:
-            value = self.scalar(value)
-        self.set_value(struct, value)
-
-
-class Dlist(Dset):
-
-    def get_value(self, struct):
-        return np.array(getattr(struct, self.struct_name))
-
-    def set_value(self, struct, value):
-        setattr(struct, self.struct_name, list(value))
-
-
 class H5Store(object):
 
     def __init__(self, filename):
@@ -149,30 +100,6 @@ class H5Store(object):
         if self.h5:
             self.h5.close()
         self.h5 = None
-
-    def generic_save(self, parent, source, structure):
-        """save the data from source into the file using 'structure'
-        as a descriptor.
-
-        structure is a list of Attribute Descriptor (Attr, Dset, Dlist or anything
-        with a save interface) that describe the conversion of data and the name
-        of the attribute in the source and in the file
-        """
-        for instr in structure:
-            instr.save(parent, source)
-
-    def generic_load(self, parent, dest, structure):
-        """load the data from the file into dest using 'structure'
-        as a descriptor.
-
-        structure is the same as in generic_save
-        """
-        for instr in structure:
-            try:
-                instr.load(parent, dest)
-            except Exception:
-                print("Error loading HDF5 item:", instr.hdf_name, file=sys.stderr)
-                raise
 
 
 class HDF5Handler(H5Store, BaseIOHandler):

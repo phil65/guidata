@@ -20,10 +20,7 @@ Licensed under the terms of the CECILL License
 (see guidata/__init__.py for details)
 """
 
-from __future__ import print_function
 
-import setuptools  # analysis:ignore
-from distutils.core import setup
 import sys
 import os
 import os.path as osp
@@ -31,9 +28,10 @@ import shutil
 import atexit
 import subprocess
 
+from guidata import __version__ as version
+
 
 LIBNAME = 'guidata'
-from guidata import __version__ as version
 
 DESCRIPTION = 'Automatic graphical user interfaces generation for easy '\
               'dataset editing and display'
