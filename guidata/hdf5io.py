@@ -235,7 +235,7 @@ class HDF5Writer(HDF5Handler, WriterMixin):
     """Writer for HDF5 files"""
 
     def __init__(self, filename):
-        super(HDF5Writer, self).__init__(filename)
+        super().__init__(filename)
         self.open("w")
 
     def write_any(self, val):
@@ -288,7 +288,7 @@ class HDF5Reader(HDF5Handler):
     """Reader for HDF5 files"""
 
     def __init__(self, filename):
-        super(HDF5Reader, self).__init__(filename)
+        super().__init__(filename)
         self.open("r")
 
     def read(self, group_name=None, func=None, instance=None):

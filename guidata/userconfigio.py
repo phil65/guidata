@@ -16,7 +16,7 @@ UserConfig reader/writer objects
 import collections
 import datetime
 
-from guidata.py3compat import is_unicode, PY3
+from guidata.py3compat import is_unicode
 
 
 class GroupContext(object):
@@ -127,9 +127,7 @@ class UserConfigWriter(UserConfigIOHandler, WriterMixin):
     write_array = write_sequence = write_str = write_any
 
     def write_unicode(self, val):
-        self.write_any(val.encode("utf-8"))
-    if PY3:
-        write_unicode = write_str
+        self.write_any(val)
 
     def write_none(self):
         self.write_any(None)
@@ -146,10 +144,4 @@ class UserConfigReader(UserConfigIOHandler):
     read_array = read_sequence = read_none = read_str = read_any
 
     def read_unicode(self):
-        val = self.read_any()
-        if is_unicode(val) or val is None:
-            return val
-        else:
-            return self.read_str()
-    if PY3:
-        read_unicode = read_str
+        return self.read_str()

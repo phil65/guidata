@@ -31,8 +31,6 @@ import shutil
 import atexit
 import subprocess
 
-from guidata.utils import get_subpackages, get_package_data
-
 
 LIBNAME = 'guidata'
 from guidata import __version__ as version
@@ -123,7 +121,7 @@ def build_chm_doc(libname):
             if osp.isfile(hhc_exe):
                 break
         else:
-            print('Warning: `HTML Help Workshop` is required to build CHM '\
+            print('Warning: `HTML Help Workshop` is required to build CHM '
                   'documentation file', file=sys.stderr)
             return
         doctmp_dir = 'doctmp'
