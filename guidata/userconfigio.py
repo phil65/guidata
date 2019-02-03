@@ -90,8 +90,6 @@ class WriterMixin(object):
             self.write_int(val)
         elif isinstance(val, float):
             self.write_float(val)
-        elif is_unicode(val):
-            self.write_unicode(val)
         elif isinstance(val, str):
             self.write_any(val)
         elif isinstance(val, np.ndarray):
@@ -125,9 +123,6 @@ class UserConfigWriter(UserConfigIOHandler, WriterMixin):
 
     write_bool = write_int = write_float = write_any
     write_array = write_sequence = write_str = write_any
-
-    def write_unicode(self, val):
-        self.write_any(val)
 
     def write_none(self):
         self.write_any(None)

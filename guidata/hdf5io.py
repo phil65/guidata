@@ -19,33 +19,7 @@ import numpy as np
 
 from guidata.userconfigio import BaseIOHandler, WriterMixin
 
-from guidata.py3compat import (PY3, is_binary_string, to_binary_string,
-                               to_text_string)
-
-
-class TypeConverter(object):
-
-    def __init__(self, to_type, from_type=None):
-        self._to_type = to_type
-        if from_type:
-            self._from_type = from_type
-        else:
-            self._from_type = to_type
-
-    def to_hdf(self, value):
-        try:
-            return self._to_type(value)
-        except:
-            print("ERR", repr(value), file=sys.stderr)
-            raise
-
-    def from_hdf(self, value):
-        return self._from_type(value)
-
-
-unicode_hdf = TypeConverter(lambda x: x.encode("utf-8"),
-                            lambda x: to_text_string(x, encoding='utf-8'))
-int_hdf = TypeConverter(int)
+from guidata.py3compat import is_binary_string
 
 
 class Attr(object):
@@ -106,13 +80,6 @@ class Attr(object):
         self.set_value(struct, value)
 
 
-def createdset(group, name, value):
-    group.create_dataset(name,
-                         compression=None,
-                         # compression_opts=3,
-                         data=value)
-
-
 class Dset(Attr):
     """
     Generic load/save for an hdf5 dataset:
@@ -161,10 +128,6 @@ class Dlist(Dset):
         setattr(struct, self.struct_name, list(value))
 
 
-#==============================================================================
-# Base HDF5 Store object: do not break API compatibility here as this class is
-# used in various critical projects for saving/loading application data
-#==============================================================================
 class H5Store(object):
 
     def __init__(self, filename):
@@ -212,11 +175,6 @@ class H5Store(object):
                 raise
 
 
-#==============================================================================
-# HDF5 reader/writer: do not break API compatibility here as this class is
-# used in various critical projects for saving/loading application data and
-# in guiqwt for saving/loading plot items.
-#==============================================================================
 class HDF5Handler(H5Store, BaseIOHandler):
     """Base HDF5 I/O Handler object"""
 
@@ -249,12 +207,6 @@ class HDF5Writer(HDF5Handler, WriterMixin):
 
     write_str = write_any
 
-    def write_unicode(self, val):
-        group = self.get_parent_group()
-        group.attrs[self.option[-1]] = val.encode("utf-8")
-    if PY3:
-        write_unicode = write_str
-
     def write_array(self, val):
         group = self.get_parent_group()
         group[self.option[-1]] = val
@@ -274,7 +226,7 @@ class HDF5Writer(HDF5Handler, WriterMixin):
             else:
                 ids = []
                 for obj in seq:
-                    guid = to_binary_string(str(uuid1()))
+                    guid = bytes(str(uuid1()), 'utf-8')
                     ids.append(guid)
                     with self.group(guid):
                         if obj is None:
