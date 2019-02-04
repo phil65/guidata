@@ -47,8 +47,8 @@ import re
 import os.path as osp
 import sys
 
-from guidata.py3compat import configparser as cp
-from guidata.py3compat import is_text_string, is_unicode
+import configparser as cp
+from guidata.py3compat import is_text_string
 
 
 def _check_values(sections):
@@ -57,7 +57,7 @@ def _check_values(sections):
     for section, data in list(sections.items()):
         for key, value in list(data.items()):
             try:
-                _s = str(value)
+                str(value)
             except Exception as _e:
                 print("Can't convert:")
                 print(section, key, repr(value))
