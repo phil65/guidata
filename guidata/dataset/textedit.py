@@ -10,8 +10,6 @@ Text visitor for DataItem objects
 (for test purpose only)
 """
 
-from guidata.py3compat import input
-
 
 def prompt(item):
     """Get item value"""
