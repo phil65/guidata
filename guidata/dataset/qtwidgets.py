@@ -20,9 +20,7 @@ Dialog boxes used to edit data sets:
     DataSetShowLayout
 """
 
-from qtpy.QtGui import (QColor, QIcon, QPainter,
-                        QPicture, QBrush)
-from qtpy.QtCore import Qt, QRect, QSize, Signal
+from qtpy import QtGui, QtCore
 from qtpy.QtWidgets import (QDialog, QMessageBox, QDialogButtonBox, QWidget, QTabWidget,
                             QApplication, QVBoxLayout, QGridLayout, QLabel, QSpacerItem,
                             QGroupBox, QPushButton)
@@ -35,6 +33,17 @@ from guidata.py3compat import to_text_string, is_text_string
 
 from guidata.dataset.datatypes import (BeginGroup, EndGroup, GroupItem,
                                        TabGroupItem)
+
+from guidata.dataset.qtitemwidgets import (LineEditWidget, TextEditWidget,
+                                           CheckBoxWidget, ColorWidget, FileWidget, DirectoryWidget,
+                                           ChoiceWidget, MultipleChoiceWidget, FloatArrayWidget,
+                                           GroupWidget, AbstractDataSetWidget, ButtonWidget,
+                                           TabGroupWidget, DateWidget, DateTimeWidget, SliderWidget,
+                                           FloatSliderWidget)
+from guidata.dataset.dataitems import (FloatItem, StringItem, TextItem, IntItem,
+                                       BoolItem, ColorItem, FileOpenItem, FilesOpenItem, FileSaveItem,
+                                       DirectoryItem, ChoiceItem, ImageChoiceItem, MultipleChoiceItem,
+                                       FloatArrayItem, ButtonItem, DateItem, DateTimeItem, DictItem)
 
 
 class DataSetEditDialog(QDialog):
@@ -73,7 +82,7 @@ class DataSetEditDialog(QDialog):
         self.setLayout(self.layout)
 
         if parent is None:
-            if not isinstance(icon, QIcon):
+            if not isinstance(icon, QtGui.QIcon):
                 icon = get_icon(icon, default="guidata.svg")
             self.setWindowIcon(icon)
 
@@ -81,7 +90,7 @@ class DataSetEditDialog(QDialog):
         self.setWindowTitle(instance.get_title())
 
         if size is not None:
-            if isinstance(size, QSize):
+            if isinstance(size, QtCore.QSize):
                 self.resize(size)
             else:
                 self.resize(*size)
@@ -97,7 +106,7 @@ class DataSetEditDialog(QDialog):
     def setup_instance(self, instance):
         """Construct main layout"""
         grid = QGridLayout()
-        grid.setAlignment(Qt.AlignTop)
+        grid.setAlignment(QtCore.Qt.AlignTop)
         self.layout.addLayout(grid)
         self.edit_layout.append(self.layout_factory(instance, grid))
 
@@ -149,7 +158,7 @@ class DataSetGroupEditDialog(DataSetEditDialog):
         self.layout.addWidget(tabs)
         for dataset in instance.datasets:
             layout = QVBoxLayout()
-            layout.setAlignment(Qt.AlignTop)
+            layout.setAlignment(QtCore.Qt.AlignTop)
             if dataset.get_comment():
                 label = QLabel(dataset.get_comment())
                 label.setWordWrap(self.wordwrap)
@@ -295,16 +304,6 @@ class DataSetEditLayout(object):
 
 
 # Enregistrement des correspondances avec les widgets
-from guidata.dataset.qtitemwidgets import (LineEditWidget, TextEditWidget,
-                                           CheckBoxWidget, ColorWidget, FileWidget, DirectoryWidget,
-                                           ChoiceWidget, MultipleChoiceWidget, FloatArrayWidget,
-                                           GroupWidget, AbstractDataSetWidget, ButtonWidget,
-                                           TabGroupWidget, DateWidget, DateTimeWidget, SliderWidget,
-                                           FloatSliderWidget)
-from guidata.dataset.dataitems import (FloatItem, StringItem, TextItem, IntItem,
-                                       BoolItem, ColorItem, FileOpenItem, FilesOpenItem, FileSaveItem,
-                                       DirectoryItem, ChoiceItem, ImageChoiceItem, MultipleChoiceItem,
-                                       FloatArrayItem, ButtonItem, DateItem, DateTimeItem, DictItem)
 
 DataSetEditLayout.register(GroupItem, GroupWidget)
 DataSetEditLayout.register(TabGroupItem, TabGroupWidget)
@@ -349,7 +348,7 @@ class DataSetShowWidget(AbstractDataSetWidget):
         self.group.setWordWrap(wordwrap)
         self.group.setToolTip(item.get_help())
         self.group.setStyleSheet(LABEL_CSS)
-        self.group.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.group.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         # self.group.setEnabled(False)
 
     def get(self):
@@ -374,11 +373,11 @@ class ShowColorWidget(DataSetShowWidget):
         """Override AbstractDataSetWidget method"""
         value = self.item.get()
         if value is not None:
-            color = QColor(value)
-            self.picture = QPicture()
-            painter = QPainter()
+            color = QtGui.QColor(value)
+            self.picture = QtGui.QPicture()
+            painter = QtGui.QPainter()
             painter.begin(self.picture)
-            painter.fillRect(QRect(0, 0, 60, 20), QBrush(color))
+            painter.fillRect(QtCore.QRect(0, 0, 60, 20), QtGui.QBrush(color))
             painter.end()
             self.group.setPicture(self.picture)
 
@@ -421,6 +420,7 @@ class DataSetShowDialog(DataSetEditDialog):
         """Override DataSetEditDialog method"""
         return DataSetShowLayout(self, instance, grid)
 
+
 DataSetShowLayout.register(GroupItem, GroupWidget)
 DataSetShowLayout.register(TabGroupItem, TabGroupWidget)
 DataSetShowLayout.register(FloatItem, DataSetShowWidget)
@@ -445,7 +445,7 @@ class DataSetShowGroupBox(QGroupBox):
     """Group box widget showing a read-only DataSet"""
 
     def __init__(self, label, klass, wordwrap=False, **kwargs):
-        QGroupBox.__init__(self, label)
+        super().__init__(label)
         self.klass = klass
         self.dataset = klass(**kwargs)
         self.layout = QVBoxLayout()
@@ -481,12 +481,12 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
     """
 
     #: Signal emitted when Apply button is clicked
-    SIG_APPLY_BUTTON_CLICKED = Signal()
+    SIG_APPLY_BUTTON_CLICKED = QtCore.Signal()
 
     def __init__(self, label, klass, button_text=None, button_icon=None,
                  show_button=True, wordwrap=False, **kwargs):
-        DataSetShowGroupBox.__init__(self, label, klass, wordwrap=wordwrap,
-                                     **kwargs)
+        super().__init__(label, klass, wordwrap=wordwrap,
+                         **kwargs)
         if show_button:
             if button_text is None:
                 button_text = _("Apply")
@@ -498,7 +498,7 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
             apply_btn.clicked.connect(self.set)
             layout = self.edit.layout
             layout.addWidget(apply_btn, layout.rowCount(),
-                             0, 1, -1, Qt.AlignRight)
+                             0, 1, -1, QtCore.Qt.AlignRight)
 
     def get_edit_layout(self):
         """Return edit layout"""

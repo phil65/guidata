@@ -550,7 +550,10 @@ def qapplication():
     install_translator(app)
     return app
 
+
 QT_TRANSLATOR = None
+
+
 def install_translator(qapp):
     """Install Qt translator to the QApplication instance"""
     global QT_TRANSLATOR
@@ -560,7 +563,7 @@ def install_translator(qapp):
         # Qt-specific translator
         qt_translator = QTranslator()
         paths = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
-        if qt_translator.load("qt_"+locale, paths):
-            QT_TRANSLATOR = qt_translator # Keep reference alive
+        if qt_translator.load("qt_" + locale, paths):
+            QT_TRANSLATOR = qt_translator  # Keep reference alive
     if QT_TRANSLATOR is not None:
         qapp.installTranslator(QT_TRANSLATOR)
