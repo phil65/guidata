@@ -20,10 +20,7 @@ Dialog boxes used to edit data sets:
     DataSetShowLayout
 """
 
-from qtpy import QtGui, QtCore
-from qtpy.QtWidgets import (QDialog, QMessageBox, QDialogButtonBox, QWidget, QTabWidget,
-                            QApplication, QVBoxLayout, QGridLayout, QLabel, QSpacerItem,
-                            QGroupBox, QPushButton)
+from qtpy import QtGui, QtCore, QtWidgets
 
 from qtpy.compat import getopenfilename, getopenfilenames, getsavefilename
 
@@ -46,19 +43,19 @@ from guidata.dataset.dataitems import (FloatItem, StringItem, TextItem, IntItem,
                                        FloatArrayItem, ButtonItem, DateItem, DateTimeItem, DictItem)
 
 
-class DataSetEditDialog(QDialog):
+class DataSetEditDialog(QtWidgets.QDialog):
     """
     Dialog box for DataSet editing
     """
 
     def __init__(self, instance, icon='', parent=None, apply=None,
                  wordwrap=True, size=None):
-        QDialog.__init__(self, parent)
+        super().__init__(parent)
         self.wordwrap = wordwrap
         self.apply_func = apply
-        self.layout = QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
         if instance.get_comment():
-            label = QLabel(instance.get_comment())
+            label = QtWidgets.QLabel(instance.get_comment())
             label.setWordWrap(wordwrap)
             self.layout.addWidget(label)
         self.instance = instance
@@ -67,12 +64,12 @@ class DataSetEditDialog(QDialog):
         self.setup_instance(instance)
 
         if apply is not None:
-            apply_button = QDialogButtonBox.Apply
+            apply_button = QtWidgets.QDialogButtonBox.Apply
         else:
-            apply_button = QDialogButtonBox.NoButton
-        bbox = QDialogButtonBox(QDialogButtonBox.Ok |
-                                QDialogButtonBox.Cancel |
-                                apply_button)
+            apply_button = QtWidgets.QDialogButtonBox.NoButton
+        bbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok |
+                                          QtWidgets.QDialogButtonBox.Cancel |
+                                          apply_button)
         self.bbox = bbox
         bbox.accepted.connect(self.accept)
         bbox.rejected.connect(self.reject)
@@ -97,7 +94,7 @@ class DataSetEditDialog(QDialog):
 
     def button_clicked(self, button):
         role = self.bbox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole and self.apply_func is not None:
+        if role == QtWidgets.QDialogButtonBox.ApplyRole and self.apply_func is not None:
             if self.check():
                 for edl in self.edit_layout:
                     edl.accept_changes()
@@ -105,7 +102,7 @@ class DataSetEditDialog(QDialog):
 
     def setup_instance(self, instance):
         """Construct main layout"""
-        grid = QGridLayout()
+        grid = QtWidgets.QGridLayout()
         grid.setAlignment(QtCore.Qt.AlignTop)
         self.layout.addLayout(grid)
         self.edit_layout.append(self.layout_factory(instance, grid))
@@ -119,7 +116,7 @@ class DataSetEditDialog(QDialog):
 
     def child_title(self, item):
         """Return data item title combined with QApplication title"""
-        app_name = QApplication.applicationName()
+        app_name = QtWidgets.QApplication.applicationName()
         if not app_name:
             app_name = self.instance.get_title()
         return "%s - %s" % (app_name, item.label())
@@ -130,9 +127,9 @@ class DataSetEditDialog(QDialog):
             if not edl.check_all_values():
                 is_ok = False
         if not is_ok:
-            QMessageBox.warning(self, self.instance.get_title(),
-                                _("Some required entries are incorrect") + "\n" +
-                                _("Please check highlighted fields."))
+            QtWidgets.QMessageBox.warning(self, self.instance.get_title(),
+                                          _("Some required entries are incorrect") + "\n" +
+                                          _("Please check highlighted fields."))
             return False
         return True
 
@@ -141,7 +138,7 @@ class DataSetEditDialog(QDialog):
         if self.check():
             for edl in self.edit_layout:
                 edl.accept_changes()
-            QDialog.accept(self)
+            super().accept()
 
 
 class DataSetGroupEditDialog(DataSetEditDialog):
@@ -153,20 +150,20 @@ class DataSetGroupEditDialog(DataSetEditDialog):
         """Override DataSetEditDialog method"""
         from guidata.dataset.datatypes import DataSetGroup
         assert isinstance(instance, DataSetGroup)
-        tabs = QTabWidget()
+        tabs = QtWidgets.QTabWidget()
 #        tabs.setUsesScrollButtons(False)
         self.layout.addWidget(tabs)
         for dataset in instance.datasets:
-            layout = QVBoxLayout()
+            layout = QtWidgets.QVBoxLayout()
             layout.setAlignment(QtCore.Qt.AlignTop)
             if dataset.get_comment():
-                label = QLabel(dataset.get_comment())
+                label = QtWidgets.QLabel(dataset.get_comment())
                 label.setWordWrap(self.wordwrap)
                 layout.addWidget(label)
-            grid = QGridLayout()
+            grid = QtWidgets.QGridLayout()
             self.edit_layout.append(self.layout_factory(dataset, grid))
             layout.addLayout(grid)
-            page = QWidget()
+            page = QtWidgets.QWidget()
             page.setLayout(layout)
             if dataset.get_icon():
                 tabs.addTab(page, get_icon(dataset.get_icon()),
@@ -276,7 +273,7 @@ class DataSetEditLayout(object):
         item = widget.item
         line, col, span = self.items_pos[item.item]
         if col > 0:
-            self.layout.addItem(QSpacerItem(20, 1), line, col * 3 - 1)
+            self.layout.addItem(QtWidgets.QSpacerItem(20, 1), line, col * 3 - 1)
 
         widget.place_on_grid(self.layout, line, col * 3, col * 3 + 1, 1, 3 * span - 2)
         try:
@@ -343,7 +340,7 @@ class DataSetShowWidget(AbstractDataSetWidget):
 
     def __init__(self, item, parent_layout):
         AbstractDataSetWidget.__init__(self, item, parent_layout)
-        self.group = QLabel()
+        self.group = QtWidgets.QLabel()
         wordwrap = item.get_prop_value("display", "wordwrap", False)
         self.group.setWordWrap(wordwrap)
         self.group.setToolTip(item.get_help())
@@ -441,19 +438,19 @@ DataSetShowLayout.register(MultipleChoiceItem, DataSetShowWidget)
 DataSetShowLayout.register(FloatArrayItem, DataSetShowWidget)
 
 
-class DataSetShowGroupBox(QGroupBox):
+class DataSetShowGroupBox(QtWidgets.QGroupBox):
     """Group box widget showing a read-only DataSet"""
 
     def __init__(self, label, klass, wordwrap=False, **kwargs):
         super().__init__(label)
         self.klass = klass
         self.dataset = klass(**kwargs)
-        self.layout = QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
         if self.dataset.get_comment():
-            label = QLabel(self.dataset.get_comment())
+            label = QtWidgets.QLabel(self.dataset.get_comment())
             label.setWordWrap(wordwrap)
             self.layout.addWidget(label)
-        self.grid_layout = QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
         self.layout.addLayout(self.grid_layout)
         self.setLayout(self.layout)
         self.edit = self.get_edit_layout()
@@ -494,7 +491,7 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
                 button_icon = get_icon("apply.png")
             elif is_text_string(button_icon):
                 button_icon = get_icon(button_icon)
-            apply_btn = QPushButton(button_icon, button_text, self)
+            apply_btn = QtWidgets.QPushButton(button_icon, button_text, self)
             apply_btn.clicked.connect(self.set)
             layout = self.edit.layout
             layout.addWidget(apply_btn, layout.rowCount(),
@@ -513,7 +510,7 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
 
     def child_title(self, item):
         """Return data item title combined with QApplication title"""
-        app_name = QApplication.applicationName()
+        app_name = QtWidgets.QApplication.applicationName()
         if not app_name:
             app_name = to_text_string(self.title())
         return "%s - %s" % (app_name, item.label())
