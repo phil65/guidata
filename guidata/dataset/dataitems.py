@@ -21,7 +21,7 @@ import collections
 from guidata.dataset.datatypes import DataItem, ItemProperty
 from guidata.utils import utf8_to_unicode, add_extension
 from guidata.config import _
-from guidata.py3compat import to_text_string, is_text_string, TEXT_TYPES
+from guidata.py3compat import to_text_string
 
 
 class NumericTypeItem(DataItem):
@@ -191,7 +191,7 @@ class StringItem(DataItem):
         * notempty [bool]: if True, empty string is not a valid value (opt.)
         * wordwrap [bool]: toggle word wrapping (optional)
     """
-    type = TEXT_TYPES
+    type = (str,)
 
     def __init__(self, label, default=None, notempty=None, wordwrap=False,
                  help=''):
@@ -371,7 +371,7 @@ class FilesOpenItem(FileSaveItem):
 
     def __init__(self, label, formats='*', default=None,
                  basedir=None, all_files_first=False, help='', check=True):
-        if is_text_string(default):
+        if isinstance(default, str):
             default = [default]
         super().__init__(label, formats=formats, default=default,
                          basedir=basedir, all_files_first=all_files_first,
