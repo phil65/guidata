@@ -143,7 +143,7 @@ class UserConfig(cp.ConfigParser):
         self.name = name
         self.raw = 1 if raw_mode else 0
         if (version is not None) and (re.match('^(\d+).(\d+).(\d+)$', version) is None):
-            raise RuntimeError("Version number %r is incorrect - must be in X.Y.Z format" % version)
+            raise RuntimeError(f"Version number {version} is incorrect - must be in X.Y.Z format")
 
         if load:
             # If config file already exists, it overrides Default options:
@@ -174,7 +174,7 @@ class UserConfig(cp.ConfigParser):
                     _check(key + "[]", v)
             else:
                 if not isinstance(value, (bool, int, float, str)):
-                    errors.append("Invalid value for %s: %r" % (key, value))
+                    errors.append(f"Invalid value for {key}: {value}")
         for name, section in list(self.defaults.items()):
             assert isinstance(name, str)
             for key, value in list(section.items()):
@@ -226,7 +226,7 @@ class UserConfig(cp.ConfigParser):
         """
         Create a .ini filename located in user home directory
         """
-        return osp.join(get_config_dir(), '.%s.ini' % self.name)
+        return osp.join(get_config_dir(), f'.{self.name}.ini')
 
     def cleanup(self):
         """
@@ -292,13 +292,13 @@ class UserConfig(cp.ConfigParser):
 
         if not self.has_section(section):
             if default is NoDefault:
-                raise RuntimeError("Unknown section %r" % section)
+                raise RuntimeError(f"Unknown section {section}")
             else:
                 self.add_section(section)
 
         if not self.has_option(section, option):
             if default is NoDefault:
-                raise RuntimeError("Unknown option %r/%r" % (section, option))
+                raise RuntimeError(f"Unknown option {section}/{option}")
             else:
                 self.set(section, option, default)
                 return default
