@@ -22,7 +22,6 @@ import re
 import collections
 
 from guidata.utils import update_dataset
-from guidata.py3compat import to_text_string, is_text_string
 
 
 DEBUG_DESERIALIZE = False
@@ -243,9 +242,6 @@ class DataItem(object):
             func = self.get_prop_value("display", instance, "func", lambda x: x)
             if isinstance(fmt, collections.Callable) and value is not None:
                 return fmt(func(value))
-            elif is_text_string(fmt):
-                # This is only necessary with Python 2: converting to unicode
-                fmt = to_text_string(fmt)
 
             if value is not None:
                 text = self.format_string(instance, value, fmt, func)
@@ -600,14 +596,10 @@ class DataSet(Meta_Py3Compat):
     __metaclass__ = DataSetMeta  # keep it even with Python 3 (see DataSetMeta)
 
     def __init__(self, title=None, comment=None, icon=''):
-        self.__title = title
-        self.__comment = comment
         self.__icon = icon
         comp_title, comp_comment = self._compute_title_and_comment()
-        if title is None:
-            self.__title = comp_title
-        if comment is None:
-            self.__comment = comp_comment
+        self.__title = title if title is not None else comp_title
+        self.__comment = comp_comment if comment is not None else comment
         self.__changed = False
         # Set default values
         self.set_defaults()
@@ -857,10 +849,7 @@ class DataSetGroup(object):
     def __init__(self, datasets, title=None, icon=''):
         self.__icon = icon
         self.datasets = datasets
-        if title:
-            self.__title = title
-        else:
-            self.__title = self.__class__.__name__
+        self.__title = title if title else self.__class__.__name__
 
     def __str__(self):
         return "\n".join([dataset.__str__() for dataset in self.datasets])
