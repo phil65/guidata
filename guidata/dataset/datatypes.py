@@ -21,7 +21,7 @@ import sys
 import re
 import collections
 
-from guidata.utils import utf8_to_unicode, update_dataset
+from guidata.utils import update_dataset
 from guidata.py3compat import to_text_string, is_text_string
 
 
@@ -159,10 +159,10 @@ class DataItem(object):
         DataItem.count += 1
         self._name = None
         self._default = default
-        self._help = utf8_to_unicode(help)
+        self._help = str(help)
         self._props = {}  # a dict realm->dict containing realm-specific properties
         self.set_prop("display", col=0, colspan=None,
-                      label=utf8_to_unicode(label))
+                      label=str(label))
         self.set_prop('data', check_value=check)
 
     def get_prop(self, realm, name, default=NoDefault):
@@ -210,7 +210,7 @@ class DataItem(object):
         """
         Return data item's tooltip
         """
-        auto_help = utf8_to_unicode(self.get_auto_help(instance))
+        auto_help = str(self.get_auto_help(instance))
         help = self._help
         if auto_help:
             if help:
@@ -465,7 +465,7 @@ class DataItemProxy(object):
         return DataItemVariable(self, instance)
 
 #    def __getattr__(self, name):
-#        assert name in ["min_equals_max", "get_min", "get_max",
+#        assert name in ["get_min", "get_max",
 #                        "_formats", "_text", "_choices", "_shape",
 #                        "_format", "_label", "_xy"]
 #        val = getattr(self.item, name)
@@ -503,7 +503,7 @@ class DataItemVariable(object):
 #        self.item.set_prop(realm, **kwargs)
 #
 #    def __getattr__(self, name):
-#        assert name in ["min_equals_max", "get_min", "get_max",
+#        assert name in ["get_min", "get_max",
 #                        "_formats","_text", "_choices", "_shape",
 #                        "_format", "_label", "_xy"]
 #        val = getattr(self.item, name)
@@ -632,7 +632,7 @@ class DataSet(Meta_Py3Compat):
         comp_title = self.__class__.__name__
         comp_comment = None
         if self.__doc__:
-            doc_lines = utf8_to_unicode(self.__doc__).splitlines()
+            doc_lines = str(self.__doc__).splitlines()
             # Remove empty lines at the begining of comment
             while doc_lines and not doc_lines[0].strip():
                 del doc_lines[0]

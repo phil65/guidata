@@ -27,7 +27,7 @@ import datetime
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.compat import getexistingdirectory
 
-from guidata.utils import update_dataset, restore_dataset, utf8_to_unicode
+from guidata.utils import update_dataset, restore_dataset
 from guidata.qthelpers import text_to_qcolor, get_std_icon
 from guidata.configtools import get_icon, get_image_layout, get_image_file_path
 from guidata.config import _
@@ -224,10 +224,6 @@ class LineEditWidget(AbstractDataSetWidget):
         super().__init__(item, parent_layout)
         self.edit = self.group = QtWidgets.QLineEdit()
         self.edit.setToolTip(item.get_help())
-        if hasattr(item, "min_equals_max") and item.min_equals_max():
-            if item.check_item():
-                self.edit.setEnabled(False)
-            self.edit.setToolTip(_("Value is forced to %d") % item.get_max())
         self.edit.textChanged.connect(self.line_edit_changed)
 
     def get(self):
@@ -237,9 +233,9 @@ class LineEditWidget(AbstractDataSetWidget):
         if value is not None:
             if isinstance(value, QtGui.QColor):  # if item is a ColorItem object
                 value = value.name()
-            uvalue = utf8_to_unicode(value)
+            uvalue = str(value)
             if uvalue != old_value:
-                self.edit.setText(utf8_to_unicode(value))
+                self.edit.setText(str(value))
         else:
             self.line_edit_changed(value)
 
@@ -270,7 +266,7 @@ class LineEditWidget(AbstractDataSetWidget):
             cb(value)
 
     def value(self):
-        return to_text_string(self.edit.text())
+        return self.edit.text()
 
     def check(self):
         """Override AbstractDataSetWidget method"""
@@ -287,22 +283,17 @@ class TextEditWidget(AbstractDataSetWidget):
         super().__init__(item, parent_layout)
         self.edit = self.group = QtWidgets.QTextEdit()
         self.edit.setToolTip(item.get_help())
-        if hasattr(item, "min_equals_max") and item.min_equals_max():
-            if item.check_item():
-                self.edit.setEnabled(False)
-            self.edit.setToolTip(_("Value is forced to %d") % item.get_max())
         self.edit.textChanged.connect(self.text_changed)
 
     def __get_text(self):
         """Get QTextEdit text, replacing UTF-8 EOL chars by os.linesep"""
-        return to_text_string(self.edit.toPlainText()).replace('\u2029',
-                                                               os.linesep)
+        return self.edit.toPlainText().replace('\u2029', os.linesep)
 
     def get(self):
         """Override AbstractDataSetWidget method"""
         value = self.item.get()
         if value is not None:
-            self.edit.setPlainText(utf8_to_unicode(value))
+            self.edit.setPlainText(str(value))
         self.text_changed()
 
     def text_changed(self):
@@ -586,7 +577,7 @@ class FileWidget(HLayoutMixin, LineEditWidget):
 
     def select_file(self):
         """Open a file selection dialog box"""
-        fname = self.item.from_string(to_text_string(self.edit.text()))
+        fname = self.item.from_string(self.edit.text())
         if isinstance(fname, list):
             fname = osp.dirname(fname[0])
         parent = self.parent_layout.parent
@@ -595,9 +586,9 @@ class FileWidget(HLayoutMixin, LineEditWidget):
         if len(fname) == 0:
             fname = self.basedir
         _formats = self.item.get_prop_value("data", "formats")
-        formats = [to_text_string(format).lower() for format in _formats]
-        filter_lines = [(_("%s files") + " (*.%s)") % (format.upper(), format)
-                        for format in formats]
+        formats = [to_text_string(fmt).lower() for fmt in _formats]
+        filter_lines = [(_("%s files") + " (*.%s)") % (fmt.upper(), fmt)
+                        for fmt in formats]
         all_filter = _("All supported files") + " (*.%s)" % " *.".join(formats)
         if len(formats) > 1:
             if self.all_files_first:

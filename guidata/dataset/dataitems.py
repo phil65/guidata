@@ -19,7 +19,7 @@ import datetime
 import collections
 
 from guidata.dataset.datatypes import DataItem, ItemProperty
-from guidata.utils import utf8_to_unicode, add_extension
+from guidata.utils import add_extension
 from guidata.config import _
 from guidata.py3compat import to_text_string
 
@@ -468,8 +468,6 @@ class ChoiceItem(DataItem):
             key = idx
             value = choice_tuple
 
-        if isinstance(value, str):
-            value = utf8_to_unicode(value)
         return (key, value, None)
 
 #    def _choices(self, item):
@@ -568,8 +566,6 @@ class ImageChoiceItem(ChoiceItem):
             key = idx
             value, img = choice_tuple
 
-        if isinstance(value, str):
-            value = utf8_to_unicode(value)
         return (key, value, img)
 
 

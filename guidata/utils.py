@@ -18,17 +18,8 @@ The ``guidata.utils`` module provides various utility helper functions
 import sys
 import time
 import os.path as osp
-import locale  # Warning: 2to3 false alarm ('import' fixer)
 
-from guidata.py3compat import (is_unicode, to_text_string, is_text_string)
-
-
-def min_equals_max(min, max):
-    """
-    Return True if minimium value equals maximum value
-    Return False if not, or if maximum or minimum value is not defined
-    """
-    return min is not None and max is not None and min == max
+from guidata.py3compat import (to_text_string)
 
 
 def pairs(iterable):
@@ -82,28 +73,6 @@ def trace(fct):
         print("leave:", fct.__name__)
         return res
     return wrapper
-
-
-def decode_fs_string(string):
-    """Convert string from file system charset to unicode"""
-    charset = sys.getfilesystemencoding()
-    if charset is None:
-        charset = locale.getpreferredencoding()
-    return string.decode(charset)
-
-
-def utf8_to_unicode(string):
-    """Convert UTF-8 string to Unicode"""
-    if not is_text_string(string):
-        string = to_text_string(string)
-    if not is_unicode(string):
-        try:
-            string = to_text_string(string, "utf-8")
-        except UnicodeDecodeError:
-            # This is border line... but we admit here string which has been
-            # erroneously encoded in file system charset instead of UTF-8
-            string = decode_fs_string(string)
-    return string
 
 
 # Findout the encoding used for stdout or use ascii as default
