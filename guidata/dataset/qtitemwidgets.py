@@ -31,7 +31,6 @@ from guidata.utils import update_dataset, restore_dataset
 from guidata.qthelpers import text_to_qcolor, get_std_icon
 from guidata.configtools import get_icon, get_image_layout, get_image_file_path
 from guidata.config import _
-from guidata.py3compat import to_text_string, is_text_string
 
 # ========================== <!> IMPORTANT <!> =================================
 #
@@ -121,11 +120,8 @@ class AbstractDataSetWidget(object):
         """
         Update the visual status of the widget
         """
-        active = self.is_active()
-        if self.group:
-            self.group.setEnabled(active)
-        if self.label:
-            self.label.setEnabled(active)
+        if self.group or self.label:
+            self.group.setEnabled(self.is_active())
 
 
 class GroupWidget(AbstractDataSetWidget):
@@ -229,7 +225,7 @@ class LineEditWidget(AbstractDataSetWidget):
     def get(self):
         """Override AbstractDataSetWidget method"""
         value = self.item.get()
-        old_value = to_text_string(self.value())
+        old_value = str(self.value())
         if value is not None:
             if isinstance(value, QtGui.QColor):  # if item is a ColorItem object
                 value = value.name()
@@ -242,7 +238,7 @@ class LineEditWidget(AbstractDataSetWidget):
     def line_edit_changed(self, qvalue):
         """QLineEdit validator"""
         if qvalue is not None:
-            value = self.item.from_string(to_text_string(qvalue))
+            value = self.item.from_string(qvalue)
         else:
             value = None
         if not self.item.check_value(value):
@@ -270,7 +266,7 @@ class LineEditWidget(AbstractDataSetWidget):
 
     def check(self):
         """Override AbstractDataSetWidget method"""
-        value = self.item.from_string(to_text_string(self.edit.text()))
+        value = self.item.from_string(self.edit.text())
         return self.item.check_value(value)
 
 
@@ -384,10 +380,7 @@ class DateWidget(AbstractDataSetWidget):
         self.item.set(self.value())
 
     def value(self):
-        try:
-            return self.dateedit.date().toPyDate()
-        except Exception:
-            return self.dateedit.dateTime().toPython()
+        return self.dateedit.dateTime().toPython()
 
 
 class DateTimeWidget(AbstractDataSetWidget):
@@ -414,10 +407,7 @@ class DateTimeWidget(AbstractDataSetWidget):
         self.item.set(self.value())
 
     def value(self):
-        try:
-            return self.dateedit.dateTime().toPyDateTime()
-        except Exception:
-            return self.dateedit.dateTime().toPython()
+        return self.dateedit.dateTime().toPython()
 
 
 class GroupLayout(QtWidgets.QHBoxLayout):
@@ -464,7 +454,7 @@ class ColorWidget(HLayoutMixin, LineEditWidget):
 
     def update(self, value):
         """Reimplement LineEditWidget method"""
-        LineEditWidget.update(self, value)
+        super().update(value)
         color = text_to_qcolor(value)
         if color.isValid():
             bitmap = QtGui.QPixmap(16, 16)
@@ -517,7 +507,7 @@ class SliderWidget(HLayoutMixin, LineEditWidget):
 
     def update(self, value):
         """Reimplement LineEditWidget method"""
-        LineEditWidget.update(self, value)
+        super().update(value)
         if self.slider is not None and isinstance(value, self.DATA_TYPE):
             self.slider.blockSignals(True)
             self.slider.setValue(self.value_to_slider(value))
@@ -586,7 +576,7 @@ class FileWidget(HLayoutMixin, LineEditWidget):
         if len(fname) == 0:
             fname = self.basedir
         _formats = self.item.get_prop_value("data", "formats")
-        formats = [to_text_string(fmt).lower() for fmt in _formats]
+        formats = [str(fmt).lower() for fmt in _formats]
         filter_lines = [(_("%s files") + " (*.%s)") % (fmt.upper(), fmt)
                         for fmt in formats]
         all_filter = _("All supported files") + " (*.%s)" % " *.".join(formats)
@@ -603,7 +593,7 @@ class FileWidget(HLayoutMixin, LineEditWidget):
         sys.stdout = _temp
         if fname:
             if isinstance(fname, list):
-                fname = to_text_string(fname)
+                fname = str(fname)
             self.edit.setText(fname)
 
 
@@ -621,7 +611,7 @@ class DirectoryWidget(HLayoutMixin, LineEditWidget):
 
     def select_directory(self):
         """Open a directory selection dialog box"""
-        value = self.item.from_string(to_text_string(self.edit.text()))
+        value = self.item.from_string(self.edit.text())
         parent = self.parent_layout.parent
         child_title = _get_child_title_func(parent)
         dname = getexistingdirectory(parent, child_title(self.item), value)
@@ -679,7 +669,7 @@ class ChoiceWidget(AbstractDataSetWidget):
             if self.is_radio:
                 button = QtWidgets.QRadioButton(lbl, self.group)
             if img:
-                if is_text_string(img):
+                if isinstance(img, str):
                     if not osp.isfile(img):
                         img = get_image_file_path(img)
                     img = QtGui.QIcon(img)
@@ -867,21 +857,21 @@ class FloatArrayWidget(AbstractDataSetWidget):
         dim = " x ".join([str(d) for d in shape])
         self.dim_label.setText(dim)
 
-        format = self.item.get_prop_value("display", "format")
+        fmt = self.item.get_prop_value("display", "format")
         minmax = self.item.get_prop_value("display", "minmax")
         try:
             if minmax == "all":
-                mint = format % arr.min()
-                maxt = format % arr.max()
+                mint = fmt % arr.min()
+                maxt = fmt % arr.max()
             elif minmax == "columns":
-                mint = ", ".join([format % arr[r, :].min()
+                mint = ", ".join([fmt % arr[r, :].min()
                                   for r in range(arr.shape[0])])
-                maxt = ", ".join([format % arr[r, :].max()
+                maxt = ", ".join([fmt % arr[r, :].max()
                                   for r in range(arr.shape[0])])
             else:
-                mint = ", ".join([format % arr[:, r].min()
+                mint = ", ".join([fmt % arr[:, r].min()
                                   for r in range(arr.shape[1])])
-                maxt = ", ".join([format % arr[:, r].max()
+                maxt = ", ".join([fmt % arr[:, r].max()
                                   for r in range(arr.shape[1])])
         except (TypeError, IndexError):
             mint, maxt = "-", "-"
@@ -917,7 +907,7 @@ class ButtonWidget(AbstractDataSetWidget):
         self.button.setToolTip(item.get_help())
         _icon = self.item.get_prop_value("display", "icon")
         if _icon is not None:
-            if is_text_string(_icon):
+            if isinstance(_icon, str):
                 _icon = get_icon(_icon)
             self.button.setIcon(_icon)
         self.button.clicked.connect(self.clicked)

@@ -19,9 +19,7 @@ import gettext
 
 from qtpy import QtCore, QtWidgets, QtGui
 
-from guidata.utils import get_module_path, decode_fs_string
-
-from guidata.py3compat import is_unicode, to_text_string, is_text_string
+from guidata.utils import get_module_path
 
 IMG_PATH = []
 
@@ -57,21 +55,9 @@ def get_translation(modname, dirname=None):
         _trans = gettext.translation(modname, get_module_locale_path(dirname),
                                      codeset="utf-8")
         lgettext = _trans.lgettext
-
-        def translate_gettext(x):
-            y = lgettext(x)
-            if is_text_string(y):
-                return y
-            else:
-                return to_text_string(y, "utf-8")
-        return translate_gettext
+        return lgettext
     except IOError as _e:
-        # print "Not using translations (%s)" % _e
-        def translate_dumb(x):
-            if not is_unicode(x):
-                return to_text_string(x, "utf-8")
-            return x
-        return translate_dumb
+        return lambda x: x
 
 
 def get_module_locale_path(modname):
@@ -84,8 +70,6 @@ def get_module_locale_path(modname):
 
 def add_image_path(path, subfolders=True):
     """Append image path (opt. with its subfolders) to global list IMG_PATH"""
-    if not is_unicode(path):
-        path = decode_fs_string(path)
     global IMG_PATH
     IMG_PATH.append(path)
     if subfolders:
@@ -160,60 +144,3 @@ def get_image_layout(imagename, text="", tooltip="", alignment=QtCore.Qt.AlignLe
     if alignment in (QtCore.Qt.AlignCenter, QtCore.Qt.AlignLeft):
         layout.addStretch()
     return (layout, label)
-
-
-def font_is_installed(font):
-    """Check if font is installed"""
-    return [fam for fam in QtGui.QFontDatabase().families()
-            if to_text_string(fam) == font]
-
-
-MONOSPACE = ['Courier New', 'Bitstream Vera Sans Mono', 'Andale Mono',
-             'Liberation Mono', 'Monaco', 'Courier', 'monospace', 'Fixed',
-             'Terminal']
-
-
-def get_family(families):
-    """Return the first installed font family in family list"""
-    if not isinstance(families, list):
-        families = [families]
-    for family in families:
-        if font_is_installed(family):
-            return family
-    else:
-        print("Warning: None of the following fonts is installed: %r" % families)
-        return ""
-
-
-def get_font(conf, section, option=""):
-    """
-    Construct a QFont from the specified configuration file entry
-    conf: UserConfig instance
-    section [, option]: configuration entry
-    """
-    if not option:
-        option = "font"
-    if 'font' not in option:
-        option += '/font'
-    font = QtGui.QFont()
-    if conf.has_option(section, option + '/family/nt'):
-        families = conf.get(section, option + '/family/' + os.name)
-    elif conf.has_option(section, option + '/family'):
-        families = conf.get(section, option + '/family')
-    else:
-        families = None
-    if families is not None:
-        if not isinstance(families, list):
-            families = [families]
-        family = None
-        for family in families:
-            if font_is_installed(family):
-                break
-        font.setFamily(family)
-    if conf.has_option(section, option + '/size'):
-        font.setPointSize(conf.get(section, option + '/size'))
-    if conf.get(section, option + '/bold', False):
-        font.setWeight(QtGui.QFont.Bold)
-    else:
-        font.setWeight(QtGui.QFont.Normal)
-    return font

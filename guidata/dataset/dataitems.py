@@ -21,7 +21,6 @@ import collections
 from guidata.dataset.datatypes import DataItem, ItemProperty
 from guidata.utils import add_extension
 from guidata.config import _
-from guidata.py3compat import to_text_string
 
 
 class NumericTypeItem(DataItem):
@@ -403,7 +402,7 @@ class FilesOpenItem(FileSaveItem):
     def get_value_from_reader(self, reader):
         """Reads value from the reader object, inside the try...except
         statement defined in the base item `deserialize` method"""
-        return [to_text_string(fname, "utf-8")
+        return [str(fname)
                 for fname in reader.read_sequence()]
 
 

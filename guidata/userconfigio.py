@@ -16,8 +16,6 @@ UserConfig reader/writer objects
 import collections
 import datetime
 
-from guidata.py3compat import is_unicode
-
 
 class GroupContext(object):
     """Group context object"""

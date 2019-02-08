@@ -203,20 +203,20 @@ class DataItem(object):
         return self
 
     def __str__(self):
-        return self._name + ": " + self.__class__.__name__
+        return f"{self._name}: {self.__class__.__name__}"
 
     def get_help(self, instance):
         """
         Return data item's tooltip
         """
         auto_help = str(self.get_auto_help(instance))
-        help = self._help
+        hlp = self._help
         if auto_help:
-            if help:
-                help = help + "\n(" + auto_help + ")"
+            if hlp:
+                hlp = hlp + "\n(" + auto_help + ")"
             else:
-                help = auto_help.capitalize()
-        return help
+                hlp = auto_help.capitalize()
+        return hlp
 
     def get_auto_help(self, instance):
         """
@@ -612,10 +612,7 @@ class DataSet(Meta_Py3Compat):
         cannot be translated at the time they are created.
         """
         module = sys.modules[self.__class__.__module__]
-        if hasattr(module, "_"):
-            return module._
-        else:
-            return lambda x: x
+        return module._ if hasattr(module, "_") else lambda x: x
 
     def _compute_title_and_comment(self):
         """
@@ -669,13 +666,6 @@ class DataSet(Meta_Py3Compat):
             if not item.check_item(self):
                 errors.append(item._name)
         return errors
-
-    def text_edit(self):
-        """
-        Edit data set with text input only
-        """
-        from guidata.dataset import textedit
-        self.accept(textedit.TextEditVisitor(self))
 
     def edit(self, parent=None, apply=None, size=None):
         """
@@ -734,10 +724,7 @@ class DataSet(Meta_Py3Compat):
                 indent = indent[:-2]
                 continue
             value = getattr(self, "_" + item._name)
-            if value is None:
-                value_str = "-"
-            else:
-                value_str = item.get_string_value(self)
+            value_str = "-" if value is None else item.get_string_value(self)
             if debug:
                 label = item._name
             else:
@@ -803,7 +790,7 @@ class ActivableDataSet(DataSet):
     _active_prop = GetAttrProp("_active")
 
     def __init__(self, title=None, comment=None, icon=''):
-        DataSet.__init__(self, title, comment, icon)
+        super().__init__(title, comment, icon)
 #        self.set_readonly()
 
     @classmethod
@@ -872,12 +859,6 @@ class DataSetGroup(object):
         """
         return [dataset.check() for dataset in self.datasets]
 
-    def text_edit(self):
-        """
-        Edit data set with text input only
-        """
-        raise NotImplementedError()
-
     def edit(self, parent=None, apply=None):
         """
         Open a dialog box to edit data set
@@ -900,7 +881,7 @@ class GroupItem(DataItemProxy):
     """GroupItem proxy"""
 
     def __init__(self, item):
-        DataItemProxy.__init__(self, item)
+        super().__init__(item)
         self.group = []
 
 

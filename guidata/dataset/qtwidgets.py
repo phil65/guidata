@@ -26,7 +26,6 @@ from qtpy.compat import getopenfilename, getopenfilenames, getsavefilename
 
 from guidata.configtools import get_icon
 from guidata.config import _
-from guidata.py3compat import to_text_string, is_text_string
 
 from guidata.dataset.datatypes import (BeginGroup, EndGroup, GroupItem,
                                        TabGroupItem)
@@ -339,7 +338,7 @@ class DataSetShowWidget(AbstractDataSetWidget):
     READ_ONLY = True
 
     def __init__(self, item, parent_layout):
-        AbstractDataSetWidget.__init__(self, item, parent_layout)
+        super().__init__(item, parent_layout)
         self.group = QtWidgets.QLabel()
         wordwrap = item.get_prop_value("display", "wordwrap", False)
         self.group.setWordWrap(wordwrap)
@@ -363,7 +362,7 @@ class ShowColorWidget(DataSetShowWidget):
     """Read-only color item widget"""
 
     def __init__(self, item, parent_layout):
-        DataSetShowWidget.__init__(self, item, parent_layout)
+        super().__init__(item, parent_layout)
         self.picture = None
 
     def get(self):
@@ -394,7 +393,7 @@ class ShowBooleanWidget(DataSetShowWidget):
 
     def get(self):
         """Override AbstractDataSetWidget method"""
-        DataSetShowWidget.get(self)
+        super().get()
         text = self.item.get_prop_value("display", "text")
         self.group.setText(text)
         font = self.group.font()
@@ -489,7 +488,7 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
                 button_text = _("Apply")
             if button_icon is None:
                 button_icon = get_icon("apply.png")
-            elif is_text_string(button_icon):
+            elif isinstance(button_icon, str):
                 button_icon = get_icon(button_icon)
             apply_btn = QtWidgets.QPushButton(button_icon, button_text, self)
             apply_btn.clicked.connect(self.set)
@@ -512,5 +511,5 @@ class DataSetEditGroupBox(DataSetShowGroupBox):
         """Return data item title combined with QApplication title"""
         app_name = QtWidgets.QApplication.applicationName()
         if not app_name:
-            app_name = to_text_string(self.title())
-        return "%s - %s" % (app_name, item.label())
+            app_name = self.title()
+        return f"{app_name} - {item.label()}"
