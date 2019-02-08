@@ -16,29 +16,14 @@ The ``guidata.utils`` module provides various utility helper functions
 """
 
 import sys
-import time
 import os.path as osp
-
-from guidata.py3compat import (to_text_string)
-
-
-def pairs(iterable):
-    """A simple generator that takes a list and generates
-    pairs [ (l[0],l[1]), ..., (l[n-2], l[n-1])]
-    """
-    iterator = iter(iterable)
-    first = next(iterator)
-    while True:
-        second = next(iterator)
-        yield (first, second)
-        first = second
 
 
 def add_extension(item, value):
     """Add extension to filename
     `item`: data item representing a file path
     `value`: possible value for data item"""
-    value = to_text_string(value)
+    value = str(value)
     formats = item.get_prop("data", "formats")
     if len(formats) == 1 and formats[0] != '*':
         if not value.endswith('.' + formats[0]) and len(value) > 0:
@@ -57,22 +42,6 @@ def bind(fct, value):
     def callback(*args, **kwargs):
         return fct(value, *args, **kwargs)
     return callback
-
-
-def trace(fct):
-    """A decorator that traces function entry/exit
-    used for debugging only
-    """
-    from functools import wraps
-
-    @wraps(fct)
-    def wrapper(*args, **kwargs):
-        """Tracing function entry/exit (debugging only)"""
-        print("enter:", fct.__name__)
-        res = fct(*args, **kwargs)
-        print("leave:", fct.__name__)
-        return res
-    return wrapper
 
 
 # Findout the encoding used for stdout or use ascii as default
@@ -130,26 +99,6 @@ def restore_dataset(source, dest):
                 continue
         elif isinstance(dest, dict):
             dest[key] = value
-
-
-class Timer(object):
-    """MATLAB-like timer: tic, toc"""
-
-    def __init__(self):
-        self.t0_dict = {}
-
-    def tic(self, cat):
-        """Starting timer"""
-        print(">", cat)
-        self.t0_dict[cat] = time.clock()
-
-    def toc(self, cat, msg="delta:"):
-        """Stopping timer"""
-        print("<", cat, ":", msg, time.clock() - self.t0_dict[cat])
-
-_TIMER = Timer()
-tic = _TIMER.tic
-toc = _TIMER.toc
 
 
 def get_module_path(modname):
