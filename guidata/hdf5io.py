@@ -18,8 +18,6 @@ import h5py
 
 from guidata.userconfigio import BaseIOHandler, WriterMixin
 
-from guidata.py3compat import is_binary_string
-
 
 class Attr(object):
     """Helper class representing class attribute that
@@ -197,7 +195,7 @@ class HDF5Reader(HDF5Handler):
     def read_any(self):
         group = self.get_parent_group()
         value = group.attrs[self.option[-1]]
-        if is_binary_string(value):
+        if isinstance(value, bytes):
             return value.decode("utf-8")
         else:
             return value

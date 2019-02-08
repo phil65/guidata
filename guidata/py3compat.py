@@ -29,12 +29,6 @@ def is_text_string(obj):
     return isinstance(obj, str)
 
 
-def is_binary_string(obj):
-    """Return True if `obj` is a binary string, False if it is anything else"""
-    # Python 3
-    return isinstance(obj, bytes)
-
-
 def is_unicode(obj):
     """Return True if `obj` is unicode"""
     # Python 3
