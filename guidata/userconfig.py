@@ -46,7 +46,6 @@ import os.path as osp
 import sys
 
 import configparser as cp
-from guidata.py3compat import is_text_string
 
 
 def _check_values(sections):
@@ -263,9 +262,9 @@ class UserConfig(cp.ConfigParser):
         """
         if section is None:
             section = self.default_section_name
-        elif not is_text_string(section):
+        elif not isinstance(section, str):
             raise RuntimeError("Argument 'section' must be a string")
-        if not is_text_string(option):
+        if not isinstance(option, str):
             raise RuntimeError("Argument 'option' must be a string")
         return section
 
@@ -336,7 +335,7 @@ class UserConfig(cp.ConfigParser):
         """
         if not self.has_section(section):
             self.add_section(section)
-        if not is_text_string(value):
+        if not isinstance(value, str):
             value = repr(value)
         if verbose:
             print('%s[ %s ] = %s' % (section, option, value))
@@ -367,7 +366,7 @@ class UserConfig(cp.ConfigParser):
             value = float(value)
         elif isinstance(default_value, int):
             value = int(value)
-        elif not is_text_string(default_value):
+        elif not isinstance(default_value, str):
             value = repr(value)
         self.__set(section, option, value, verbose)
         if save:
