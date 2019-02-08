@@ -13,8 +13,6 @@ The ``guidata.dataset.dataitems`` module contains implementation for
 concrete DataItems.
 """
 
-from __future__ import division, unicode_literals
-
 import os
 import re
 import datetime

@@ -20,8 +20,6 @@ Dialog boxes used to edit data sets:
     DataSetShowLayout
 """
 
-from __future__ import print_function
-
 from qtpy.QtGui import (QColor, QIcon, QPainter,
                         QPicture, QBrush)
 from qtpy.QtCore import Qt, QRect, QSize, Signal

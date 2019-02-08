@@ -5,8 +5,6 @@
 # Licensed under the terms of the CECILL License
 # (see guidata/__init__.py for details)
 
-from __future__ import print_function
-
 import sys
 import os
 import os.path as osp
@@ -44,7 +42,7 @@ def do_rescan(modname):
     files = get_files(modname)
     dirname = modname
     do_rescan_files(files, modname, dirname)
-        
+
 def do_rescan_files(files, modname, dirname):
     localedir = osp.join(dirname, "locale")
     potfile = modname+".pot"

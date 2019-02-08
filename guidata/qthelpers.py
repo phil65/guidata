@@ -13,8 +13,6 @@ The ``guidata.qthelpers`` module provides helper functions for developing
 easily Qt-based graphical user interfaces.
 """
 
-from __future__ import print_function
-
 from qtpy.QtGui import (QColor, QIcon, QKeySequence)
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (QToolButton, QMenu, QPushButton, QStyle,

@@ -9,8 +9,6 @@
 Reader and Writer for the serialization of DataSets into HDF5 files
 """
 
-from __future__ import print_function
-
 import sys
 from uuid import uuid1
 

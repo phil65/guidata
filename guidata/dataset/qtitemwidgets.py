@@ -17,8 +17,6 @@ There is one widget type for each data item type.
 Example: ChoiceWidget <--> ChoiceItem, ImageChoiceItem
 """
 
-from __future__ import print_function, unicode_literals
-
 import os
 import os.path as osp
 import sys

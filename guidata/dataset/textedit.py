@@ -10,8 +10,6 @@ Text visitor for DataItem objects
 (for test purpose only)
 """
 
-from __future__ import print_function
-
 from guidata.py3compat import input
 
 

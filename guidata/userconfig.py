@@ -38,8 +38,6 @@ management features based on ``ConfigParser`` (standard Python library).
 It is the exact copy of the open-source package `userconfig` (MIT license).
 """
 
-from __future__ import print_function
-
 __version__ = '1.0.7'
 
 import os

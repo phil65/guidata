@@ -17,8 +17,6 @@ ValueProp, ...).
 # pylint: disable-msg=W0622
 # pylint: disable-msg=W0212
 
-from __future__ import print_function, unicode_literals
-
 import sys
 import re
 import collections

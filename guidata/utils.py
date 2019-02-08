@@ -15,8 +15,6 @@ The ``guidata.utils`` module provides various utility helper functions
 (pure python).
 """
 
-from __future__ import print_function
-
 import sys
 import time
 import os.path as osp
