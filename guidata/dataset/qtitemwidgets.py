@@ -24,11 +24,12 @@ import numpy
 import collections
 import datetime
 
+import qtawesome as qta
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.compat import getexistingdirectory
 
 from guidata.utils import update_dataset, restore_dataset
-from guidata.qthelpers import text_to_qcolor, get_std_icon
+from guidata.qthelpers import text_to_qcolor
 from guidata.configtools import get_icon, get_image_layout, get_image_file_path
 from guidata.config import _
 
@@ -605,7 +606,7 @@ class DirectoryWidget(HLayoutMixin, LineEditWidget):
     def __init__(self, item, parent_layout):
         super().__init__(item, parent_layout)
         button = QtWidgets.QPushButton()
-        button.setIcon(get_std_icon('DirOpenIcon'))
+        button.setIcon(qta.icon("mdi.folder-outline"))
         button.clicked.connect(self.select_directory)
         self.group.addWidget(button)
 
@@ -831,12 +832,7 @@ class FloatArrayWidget(AbstractDataSetWidget):
             # Spyder 3.0
             from spyder.widgets.variableexplorer import arrayeditor
         except ImportError:
-            # Spyder 3.0-
-            try:
-                from spyderlib.widgets.variableexplorer import arrayeditor
-            except ImportError:
-                # Spyder 2
-                from spyderlib.widgets import arrayeditor
+            from spyderlib.widgets.variableexplorer import arrayeditor
         editor = arrayeditor.ArrayEditor(parent)
         if editor.setup_and_check(self.arr, title=label):
             if editor.exec_():

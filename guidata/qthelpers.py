@@ -13,7 +13,7 @@ The ``guidata.qthelpers`` module provides helper functions for developing
 easily Qt-based graphical user interfaces.
 """
 
-from qtpy import QtGui, QtWidgets
+from qtpy import QtGui
 
 
 def text_to_qcolor(text):
@@ -29,17 +29,3 @@ def text_to_qcolor(text):
         return color
     color.setNamedColor(text)
     return color
-
-
-def get_std_icon(name, size=None):
-    """
-    Get standard platform icon
-    Call 'show_std_icons()' for details
-    """
-    if not name.startswith('SP_'):
-        name = 'SP_' + name
-    icon = QtWidgets.QWidget().style().standardIcon(getattr(QtWidgets.QStyle, name))
-    if size is None:
-        return icon
-    else:
-        return QtGui.QIcon(icon.pixmap(size, size))
