@@ -24,12 +24,7 @@ import numpy
 import collections
 import datetime
 
-from qtpy.QtGui import (QIcon, QPixmap, QColor)
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import (QHBoxLayout, QGridLayout, QColorDialog, QPushButton, QLineEdit, QCheckBox,
-                            QComboBox, QTabWidget, QGroupBox, QDateTimeEdit,
-                            QLabel, QTextEdit, QFrame, QDateEdit, QSlider,
-                            QRadioButton, QVBoxLayout)
+from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.compat import getexistingdirectory
 
 from guidata.utils import update_dataset, restore_dataset, utf8_to_unicode
@@ -79,7 +74,7 @@ class AbstractDataSetWidget(object):
         unit = self.item.get_prop_value("display", "unit", '')
         if unit and not self.READ_ONLY:
             label_text += (' (%s)' % unit)
-        self.label = QLabel(label_text)
+        self.label = QtWidgets.QLabel(label_text)
         self.label.setToolTip(self.item.get_help())
         layout.addWidget(self.label, row, column)
 
@@ -139,13 +134,13 @@ class GroupWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(GroupWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         embedded = item.get_prop_value("display", "embedded", False)
         if not embedded:
-            self.group = QGroupBox(item.get_prop_value("display", "label"))
+            self.group = QtWidgets.QGroupBox(item.get_prop_value("display", "label"))
         else:
-            self.group = QFrame()
-        self.layout = QGridLayout()
+            self.group = QtWidgets.QFrame()
+        self.layout = QtWidgets.QGridLayout()
         EditLayoutClass = parent_layout.__class__
         self.edit = EditLayoutClass(self.group, item.instance,
                                     self.layout, item.item.group)
@@ -172,8 +167,8 @@ class GroupWidget(AbstractDataSetWidget):
 class TabGroupWidget(AbstractDataSetWidget):
 
     def __init__(self, item, parent_layout):
-        super(TabGroupWidget, self).__init__(item, parent_layout)
-        self.tabs = QTabWidget()
+        super().__init__(item, parent_layout)
+        self.tabs = QtWidgets.QTabWidget()
         items = item.item.group
         self.widgets = []
         for item in items:
@@ -182,15 +177,15 @@ class TabGroupWidget(AbstractDataSetWidget):
                 continue
             item.set_prop("display", embedded=True)
             widget = parent_layout.build_widget(item)
-            frame = QFrame()
+            frame = QtWidgets.QFrame()
             label = widget.item.get_prop_value("display", "label")
             icon = widget.item.get_prop_value("display", "icon", None)
             if icon is not None:
                 self.tabs.addTab(frame, get_icon(icon), label)
             else:
                 self.tabs.addTab(frame, label)
-            layout = QGridLayout()
-            layout.setAlignment(Qt.AlignTop)
+            layout = QtWidgets.QGridLayout()
+            layout.setAlignment(QtCore.Qt.AlignTop)
             frame.setLayout(layout)
             widget.place_on_grid(layout, 0, 0, 1)
             try:
@@ -226,8 +221,8 @@ class LineEditWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(LineEditWidget, self).__init__(item, parent_layout)
-        self.edit = self.group = QLineEdit()
+        super().__init__(item, parent_layout)
+        self.edit = self.group = QtWidgets.QLineEdit()
         self.edit.setToolTip(item.get_help())
         if hasattr(item, "min_equals_max") and item.min_equals_max():
             if item.check_item():
@@ -240,7 +235,7 @@ class LineEditWidget(AbstractDataSetWidget):
         value = self.item.get()
         old_value = to_text_string(self.value())
         if value is not None:
-            if isinstance(value, QColor):  # if item is a ColorItem object
+            if isinstance(value, QtGui.QColor):  # if item is a ColorItem object
                 value = value.name()
             uvalue = utf8_to_unicode(value)
             if uvalue != old_value:
@@ -289,8 +284,8 @@ class TextEditWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(TextEditWidget, self).__init__(item, parent_layout)
-        self.edit = self.group = QTextEdit()
+        super().__init__(item, parent_layout)
+        self.edit = self.group = QtWidgets.QTextEdit()
         self.edit.setToolTip(item.get_help())
         if hasattr(item, "min_equals_max") and item.min_equals_max():
             if item.check_item():
@@ -338,8 +333,8 @@ class CheckBoxWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(CheckBoxWidget, self).__init__(item, parent_layout)
-        self.checkbox = QCheckBox(self.item.get_prop_value("display", "text"))
+        super().__init__(item, parent_layout)
+        self.checkbox = QtWidgets.QCheckBox(self.item.get_prop_value("display", "text"))
         self.checkbox.setToolTip(item.get_help())
         self.group = self.checkbox
 
@@ -381,8 +376,8 @@ class DateWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(DateWidget, self).__init__(item, parent_layout)
-        self.dateedit = self.group = QDateEdit()
+        super().__init__(item, parent_layout)
+        self.dateedit = self.group = QtWidgets.QDateEdit()
         self.dateedit.setToolTip(item.get_help())
 
     def get(self):
@@ -410,8 +405,8 @@ class DateTimeWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(DateTimeWidget, self).__init__(item, parent_layout)
-        self.dateedit = self.group = QDateTimeEdit()
+        super().__init__(item, parent_layout)
+        self.dateedit = self.group = QtWidgets.QDateTimeEdit()
         self.dateedit.setCalendarPopup(True)
         self.dateedit.setToolTip(item.get_help())
 
@@ -434,14 +429,14 @@ class DateTimeWidget(AbstractDataSetWidget):
             return self.dateedit.dateTime().toPython()
 
 
-class GroupLayout(QHBoxLayout):
+class GroupLayout(QtWidgets.QHBoxLayout):
 
     def __init__(self):
-        QHBoxLayout.__init__(self)
+        super().__init__()
         self.widgets = []
 
     def addWidget(self, widget):
-        QHBoxLayout.addWidget(self, widget)
+        super().addWidget(widget)
         self.widgets.append(widget)
 
     def setEnabled(self, state):
@@ -452,7 +447,7 @@ class GroupLayout(QHBoxLayout):
 class HLayoutMixin(object):
 
     def __init__(self, item, parent_layout):
-        super(HLayoutMixin, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         old_group = self.group
         self.group = GroupLayout()
         self.group.addWidget(old_group)
@@ -470,8 +465,8 @@ class ColorWidget(HLayoutMixin, LineEditWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(ColorWidget, self).__init__(item, parent_layout)
-        self.button = QPushButton("")
+        super().__init__(item, parent_layout)
+        self.button = QtWidgets.QPushButton("")
         self.button.setMaximumWidth(32)
         self.button.clicked.connect(self.select_color)
         self.group.addWidget(self.button)
@@ -481,9 +476,9 @@ class ColorWidget(HLayoutMixin, LineEditWidget):
         LineEditWidget.update(self, value)
         color = text_to_qcolor(value)
         if color.isValid():
-            bitmap = QPixmap(16, 16)
+            bitmap = QtGui.QPixmap(16, 16)
             bitmap.fill(color)
-            icon = QIcon(bitmap)
+            icon = QtGui.QIcon(bitmap)
         else:
             icon = get_icon("not_found")
         self.button.setIcon(icon)
@@ -492,8 +487,8 @@ class ColorWidget(HLayoutMixin, LineEditWidget):
         """Open a color selection dialog box"""
         color = text_to_qcolor(self.edit.text())
         if not color.isValid():
-            color = Qt.gray
-        color = QColorDialog.getColor(color, self.parent_layout.parent)
+            color = QtCore.Qt.gray
+        color = QtWidgets.QColorDialog.getColor(color, self.parent_layout.parent)
         if color.isValid():
             value = color.name()
             self.edit.setText(value)
@@ -507,15 +502,15 @@ class SliderWidget(HLayoutMixin, LineEditWidget):
     DATA_TYPE = int
 
     def __init__(self, item, parent_layout):
-        super(SliderWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         self.slider = self.vmin = self.vmax = None
         if item.get_prop_value("display", "slider"):
             self.vmin = item.get_prop_value("data", "min")
             self.vmax = item.get_prop_value("data", "max")
             assert self.vmin is not None and self.vmax is not None, \
                 "SliderWidget requires that item min/max have been defined"
-            self.slider = QSlider()
-            self.slider.setOrientation(Qt.Horizontal)
+            self.slider = QtWidgets.QSlider()
+            self.slider.setOrientation(QtCore.Qt.Horizontal)
             self.setup_slider(item)
             self.slider.valueChanged.connect(self.value_changed)
             self.group.addWidget(self.slider)
@@ -579,9 +574,9 @@ class FileWidget(HLayoutMixin, LineEditWidget):
     """
 
     def __init__(self, item, parent_layout, filedialog):
-        super(FileWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         self.filedialog = filedialog
-        button = QPushButton()
+        button = QtWidgets.QPushButton()
         fmt = item.get_prop_value("data", "formats")
         button.setIcon(get_icon('%s.png' % fmt[0].lower(), default='file.png'))
         button.clicked.connect(self.select_file)
@@ -627,8 +622,8 @@ class DirectoryWidget(HLayoutMixin, LineEditWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(DirectoryWidget, self).__init__(item, parent_layout)
-        button = QPushButton()
+        super().__init__(item, parent_layout)
+        button = QtWidgets.QPushButton()
         button.setIcon(get_std_icon('DirOpenIcon'))
         button.clicked.connect(self.select_directory)
         self.group.addWidget(button)
@@ -649,18 +644,18 @@ class ChoiceWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(ChoiceWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         self._first_call = True
         self.is_radio = item.get_prop_value("display", "radio")
         self.store = self.item.get_prop("display", "store", None)
         if self.is_radio:
-            self.group = QGroupBox()
+            self.group = QtWidgets.QGroupBox()
             self.group.setToolTip(item.get_help())
-            self.vbox = QVBoxLayout()
+            self.vbox = QtWidgets.QVBoxLayout()
             self.group.setLayout(self.vbox)
             self._buttons = []
         else:
-            self.combobox = self.group = QComboBox()
+            self.combobox = self.group = QtWidgets.QComboBox()
             self.combobox.setToolTip(item.get_help())
             self.combobox.currentIndexChanged.connect(self.index_changed)
 
@@ -691,12 +686,12 @@ class ChoiceWidget(AbstractDataSetWidget):
         _choices = self.item.get_prop_value("data", "choices")
         for key, lbl, img in _choices:
             if self.is_radio:
-                button = QRadioButton(lbl, self.group)
+                button = QtWidgets.QRadioButton(lbl, self.group)
             if img:
                 if is_text_string(img):
                     if not osp.isfile(img):
                         img = get_image_file_path(img)
-                    img = QIcon(img)
+                    img = QtGui.QIcon(img)
                 elif isinstance(img, collections.Callable):
                     img = img(key)
                 if self.is_radio:
@@ -768,16 +763,16 @@ class MultipleChoiceWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(MultipleChoiceWidget, self).__init__(item, parent_layout)
-        self.groupbox = self.group = QGroupBox(item.get_prop_value("display",
-                                                                   "label"))
-        layout = QGridLayout()
+        super().__init__(item, parent_layout)
+        self.groupbox = self.group = QtWidgets.QGroupBox(item.get_prop_value("display",
+                                                                             "label"))
+        layout = QtWidgets.QGridLayout()
         self.boxes = []
         nx, ny = item.get_prop_value("display", "shape")
         cx, cy = 0, 0
         _choices = item.get_prop_value("data", "choices")
-        for _, choice, _img in _choices:
-            checkbox = QCheckBox(choice)
+        for __, choice, _img in _choices:
+            checkbox = QtWidgets.QCheckBox(choice)
             layout.addWidget(checkbox, cx, cy)
             if nx < 0:
                 cy += 1
@@ -821,16 +816,16 @@ class FloatArrayWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(FloatArrayWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         _label = item.get_prop_value("display", "label")
-        self.groupbox = self.group = QGroupBox(_label)
-        self.layout = QGridLayout()
-        self.layout.setAlignment(Qt.AlignLeft)
+        self.groupbox = self.group = QtWidgets.QGroupBox(_label)
+        self.layout = QtWidgets.QGridLayout()
+        self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.groupbox.setLayout(self.layout)
 
         self.first_line, self.dim_label = get_image_layout("shape.png",
                                                            _("Number of rows x Number of columns"))
-        edit_button = QPushButton(get_icon("arredit.png"), "")
+        edit_button = QtWidgets.QPushButton(get_icon("arredit.png"), "")
         edit_button.setToolTip(_("Edit array contents"))
         edit_button.setMaximumWidth(32)
         self.first_line.addWidget(edit_button)
@@ -925,9 +920,9 @@ class ButtonWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(ButtonWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         _label = self.item.get_prop_value("display", "label")
-        self.button = self.group = QPushButton(_label)
+        self.button = self.group = QtWidgets.QPushButton(_label)
         self.button.setToolTip(item.get_help())
         _icon = self.item.get_prop_value("display", "icon")
         if _icon is not None:
@@ -968,15 +963,15 @@ class DataSetWidget(AbstractDataSetWidget):
     """
 
     def __init__(self, item, parent_layout):
-        super(DataSetWidget, self).__init__(item, parent_layout)
+        super().__init__(item, parent_layout)
         self.dataset = self.klass()
         # Création du layout contenant les champs d'édition du signal
         embedded = item.get_prop_value("display", "embedded", False)
         if not embedded:
-            self.group = QGroupBox(item.get_prop_value("display", "label"))
+            self.group = QtWidgets.QGroupBox(item.get_prop_value("display", "label"))
         else:
-            self.group = QFrame()
-        self.layout = QGridLayout()
+            self.group = QtWidgets.QFrame()
+        self.layout = QtWidgets.QGridLayout()
         self.group.setLayout(self.layout)
         EditLayoutClass = parent_layout.__class__
         self.edit = EditLayoutClass(self.parent_layout.parent, self.dataset, self.layout)
