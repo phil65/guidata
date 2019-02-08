@@ -40,61 +40,19 @@ It is the exact copy of the open-source package `userconfig` (MIT license).
 
 __version__ = '1.0.7'
 
-import os
 import re
-import os.path as osp
 import sys
+import pathlib
 
 import configparser as cp
 
 
-def _check_values(sections):
-    # Checks if all key/value pairs are writable
-    err = False
-    for section, data in list(sections.items()):
-        for key, value in list(data.items()):
-            try:
-                str(value)
-            except Exception as _e:
-                print("Can't convert:")
-                print(section, key, repr(value))
-                err = True
-    if err:
-        assert False
-    else:
-        import traceback
-        print("-" * 30)
-        traceback.print_stack()
-
-
-def get_home_dir():
-    """
-    Return user home directory
-    """
-    try:
-        path = osp.expanduser('~')
-    except Exception:
-        path = ''
-    for env_var in ('HOME', 'USERPROFILE', 'TMP'):
-        if osp.isdir(path):
-            break
-        path = os.environ.get(env_var, '')
-    if path:
-        return path
-    else:
-        raise RuntimeError('Please define environment variable $HOME')
-
-
-def encode_to_utf8(x):
-    """Encode unicode string in UTF-8 -- but only with Python 2"""
-    return x
-
-
 def get_config_dir():
+    home_dir = pathlib.Path.home()
     if sys.platform == "win32":
         # TODO: on windows config files usually go in
-        return get_home_dir()
-    return osp.join(get_home_dir(), ".config")
+        return home_dir
+    return home_dir / ".config"
 
 
 class NoDefault:
@@ -197,7 +155,7 @@ class UserConfig(cp.ConfigParser):
         Load config from the associated .ini file
         """
         try:
-            self.read(self.filename(), encoding='utf-8')
+            self.read(str(self.filename()), encoding='utf-8')
         except cp.MissingSectionHeaderError:
             print("Warning: File contains no section headers.")
 
@@ -217,22 +175,22 @@ class UserConfig(cp.ConfigParser):
         Save config into the associated .ini file
         """
         fname = self.filename()
-        if osp.isfile(fname):
-            os.remove(fname)
-        with open(fname, 'w', encoding='utf-8') as configfile:
+        if fname.exists():
+            fname.unlink()
+        with fname.open('w') as configfile:
             self.write(configfile)
 
     def filename(self):
         """
         Create a .ini filename located in user home directory
         """
-        return osp.join(get_config_dir(), f'.{self.name}.ini')
+        return get_config_dir() / f'.{self.name}.ini'
 
     def cleanup(self):
         """
         Remove .ini file associated to config
         """
-        os.remove(self.filename())
+        self.filename().unlink()
 
     def set_as_defaults(self):
         """
@@ -303,7 +261,7 @@ class UserConfig(cp.ConfigParser):
                 self.set(section, option, default)
                 return default
 
-        value = cp.ConfigParser.get(self, section, option, raw=raw)
+        value = super().get(section, option, raw=raw)
 
         default_value = self.get_default(section, option)
         if isinstance(default_value, bool):
@@ -339,7 +297,7 @@ class UserConfig(cp.ConfigParser):
             value = repr(value)
         if verbose:
             print('%s[ %s ] = %s' % (section, option, value))
-        cp.ConfigParser.set(self, section, option, value)
+        super().set(section, option, value)
 
     def set_default(self, section, option, default_value):
         """
@@ -373,9 +331,9 @@ class UserConfig(cp.ConfigParser):
             self.__save()
 
     def remove_section(self, section):
-        cp.ConfigParser.remove_section(self, section)
+        super().remove_section(section)
         self.__save()
 
     def remove_option(self, section, option):
-        cp.ConfigParser.remove_option(self, section, option)
+        super().remove_option(section, option)
         self.__save()
