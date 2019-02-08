@@ -86,7 +86,7 @@ class NumericTypeItem(DataItem):
 
     def from_string(self, value):
         """Override DataItem method"""
-        value = to_text_string(value)  # necessary if value is a QString
+        value = str(value)  # necessary if value is a QString
         # String may contains numerical operands:
         if re.match(r'^([\d\(\)\+/\-\*.]|e)+$', value):
             try:
@@ -209,7 +209,7 @@ class StringItem(DataItem):
     def from_string(self, value):
         """Override DataItem method"""
         # QString -> str
-        return to_text_string(value)
+        return str(value)
 
     def get_value_from_reader(self, reader):
         """Reads value from the reader object, inside the try...except
@@ -391,11 +391,8 @@ class FilesOpenItem(FileSaveItem):
 
     def from_string(self, value):
         """Override DataItem method"""
-        value = to_text_string(value)
-        if value.endswith("']") or value.endswith('"]'):
-            value = eval(value)
-        else:
-            value = [value]
+        value = str(value)
+        value = eval(value) if value.endswith(("']", '"]')) else [value]
         return [add_extension(self, path) for path in value]
 
     def serialize(self, instance, writer):
@@ -488,7 +485,7 @@ class ChoiceItem(DataItem):
         # print "ShowChoiceWidget:", choices, value
         for choice in choices:
             if choice[0] == value:
-                return to_text_string(choice[1])
+                return str(choice[1])
         else:
             return DataItem.get_string_value(self, instance)
 
@@ -612,7 +609,7 @@ class FloatArrayItem(DataItem):
             text += " .. " + fmt % v.max()
             text += "]"
         text += " %s" % unit
-        return to_text_string(text)
+        return str(text)
 
     def serialize(self, instance, writer):
         """Serialize this item"""
