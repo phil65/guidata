@@ -19,7 +19,6 @@ from qtpy.QtWidgets import (QToolButton, QMenu, QPushButton, QStyle,
                             QWidget, QGroupBox, QAction)
 
 # Local imports:
-from guidata.configtools import get_icon
 from guidata.py3compat import is_text_string
 
 
@@ -37,114 +36,6 @@ def text_to_qcolor(text):
         return color
     color.setNamedColor(text)
     return color
-
-
-def create_action(parent, title, triggered=None, toggled=None,
-                  shortcut=None, icon=None, tip=None, checkable=None,
-                  context=Qt.WindowShortcut, enabled=None):
-    """
-    Create a new QAction
-    """
-    action = QAction(title, parent)
-    if triggered:
-        if checkable:
-            action.triggered.connect(triggered)
-        else:
-            action.triggered.connect(lambda checked=False: triggered())
-    if checkable is not None:
-        # Action may be checkable even if the toggled signal is not connected
-        action.setCheckable(checkable)
-    if toggled:
-        action.toggled.connect(toggled)
-        action.setCheckable(True)
-    if icon is not None:
-        assert isinstance(icon, QIcon)
-        action.setIcon(icon)
-    if shortcut is not None:
-        action.setShortcut(shortcut)
-    if tip is not None:
-        action.setToolTip(tip)
-        action.setStatusTip(tip)
-    if enabled is not None:
-        action.setEnabled(enabled)
-    action.setShortcutContext(context)
-    return action
-
-
-def create_toolbutton(parent, icon=None, text=None, triggered=None, tip=None,
-                      toggled=None, shortcut=None, autoraise=True,
-                      enabled=None):
-    """Create a QToolButton"""
-    if autoraise:
-        button = QToolButton(parent)
-    else:
-        button = QPushButton(parent)
-    if text is not None:
-        button.setText(text)
-    if icon is not None:
-        if is_text_string(icon):
-            icon = get_icon(icon)
-        button.setIcon(icon)
-    if text is not None or tip is not None:
-        button.setToolTip(text if tip is None else tip)
-    if autoraise:
-        button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        button.setAutoRaise(True)
-    if triggered is not None:
-        button.clicked.connect(lambda checked=False: triggered())
-    if toggled is not None:
-        button.toggled.connect(toggled)
-        button.setCheckable(True)
-    if shortcut is not None:
-        button.setShortcut(shortcut)
-    if enabled is not None:
-        button.setEnabled(enabled)
-    return button
-
-
-def create_groupbox(parent, title=None, toggled=None, checked=None,
-                    flat=False, layout=None):
-    """Create a QGroupBox"""
-    if title is None:
-        group = QGroupBox(parent)
-    else:
-        group = QGroupBox(title, parent)
-    group.setFlat(flat)
-    if toggled is not None:
-        group.setCheckable(True)
-        if checked is not None:
-            group.setChecked(checked)
-        group.toggled.connect(toggled)
-    if layout is not None:
-        group.setLayout(layout)
-    return group
-
-
-def keybinding(attr):
-    """Return keybinding"""
-    ks = getattr(QKeySequence, attr)
-    return QKeySequence.keyBindings(ks)[0].toString()
-
-
-def add_separator(target):
-    """Add separator to target only if last action is not a separator"""
-    target_actions = list(target.actions())
-    if target_actions:
-        if not target_actions[-1].isSeparator():
-            target.addSeparator()
-
-
-def add_actions(target, actions):
-    """
-    Add actions (list of QAction instances) to target (menu, toolbar)
-    """
-    for action in actions:
-        if isinstance(action, QAction):
-            target.addAction(action)
-        elif isinstance(action, QMenu):
-            target.addMenu(action)
-        elif action is None:
-            add_separator(target)
 
 
 def get_std_icon(name, size=None):
