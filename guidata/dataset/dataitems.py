@@ -32,7 +32,7 @@ class NumericTypeItem(DataItem):
 
     def __init__(self, label, default=None, min=None, max=None,
                  nonzero=None, unit='', help='', check=True):
-        DataItem.__init__(self, label, default=default, help=help)
+        super().__init__(label, default=default, help=help)
         self.set_prop("data", min=min, max=max, nonzero=nonzero,
                       check_value=check)
         self.set_prop("display", unit=unit)
@@ -115,8 +115,8 @@ class FloatItem(NumericTypeItem):
 
     def __init__(self, label, default=None, min=None, max=None, nonzero=None,
                  unit='', step=0.1, slider=False, help='', check=True):
-        super(FloatItem, self).__init__(label, default=default, min=min,
-                                        max=max, nonzero=nonzero, unit=unit, help=help, check=check)
+        super().__init__(label, default=default, min=min,
+                         max=max, nonzero=nonzero, unit=unit, help=help, check=check)
         self.set_prop("display", slider=slider)
         self.set_prop("data", step=step)
 
@@ -146,14 +146,14 @@ class IntItem(NumericTypeItem):
 
     def __init__(self, label, default=None, min=None, max=None, nonzero=None,
                  unit='', even=None, slider=False, help='', check=True):
-        super(IntItem, self).__init__(label, default=default, min=min, max=max,
-                                      nonzero=nonzero, unit=unit, help=help, check=check)
+        super().__init__(label, default=default, min=min, max=max,
+                         nonzero=nonzero, unit=unit, help=help, check=check)
         self.set_prop("data", even=even)
         self.set_prop("display", slider=slider)
 
     def get_auto_help(self, instance):
         """Override DataItem method"""
-        auto_help = super(IntItem, self).get_auto_help(instance)
+        auto_help = super().get_auto_help(instance)
         even = self.get_prop_value("data", instance, "even")
         if even is not None:
             if even:
@@ -166,7 +166,7 @@ class IntItem(NumericTypeItem):
         """Override DataItem method"""
         if not self.get_prop('data', 'check_value', True):
             return True
-        valid = super(IntItem, self).check_value(value)
+        valid = super().check_value(value)
         if not valid:
             return False
         even = self.get_prop("data", "even")

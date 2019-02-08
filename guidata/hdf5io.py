@@ -102,7 +102,7 @@ class HDF5Handler(H5Store, BaseIOHandler):
     """Base HDF5 I/O Handler object"""
 
     def __init__(self, filename):
-        H5Store.__init__(self, filename)
+        super().__init__(filename)
         self.option = []
 
     def get_parent_group(self):
