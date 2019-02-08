@@ -116,7 +116,7 @@ class UserConfig(cp.ConfigParser):
     default_section_name = 'main'
 
     def __init__(self, defaults):
-        cp.ConfigParser.__init__(self)
+        super().__init__()
         self.name = "none"
         self.raw = 0  # 0=substitutions are enabled / 1=raw config parser
         assert isinstance(defaults, dict)

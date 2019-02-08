@@ -195,7 +195,7 @@ class StringItem(DataItem):
 
     def __init__(self, label, default=None, notempty=None, wordwrap=False,
                  help=''):
-        DataItem.__init__(self, label, default=default, help=help)
+        super().__init__(label, default=default, help=help)
         self.set_prop("data", notempty=notempty)
         self.set_prop("display", wordwrap=wordwrap)
 
@@ -229,8 +229,8 @@ class TextItem(StringItem):
 
     def __init__(self, label, default=None, notempty=None,
                  wordwrap=True, help=''):
-        StringItem.__init__(self, label, default=default, notempty=notempty,
-                            wordwrap=wordwrap, help=help)
+        super().__init__(label, default=default, notempty=notempty,
+                         wordwrap=wordwrap, help=help)
 
 
 class BoolItem(DataItem):
@@ -245,7 +245,7 @@ class BoolItem(DataItem):
     type = bool
 
     def __init__(self, text='', label='', default=None, help='', check=True):
-        DataItem.__init__(self, label, default=default, help=help, check=check)
+        super().__init__(label, default=default, help=help, check=check)
         self.set_prop("display", text=text)
 
     def get_value_from_reader(self, reader):
@@ -373,9 +373,9 @@ class FilesOpenItem(FileSaveItem):
                  basedir=None, all_files_first=False, help='', check=True):
         if is_text_string(default):
             default = [default]
-        FileSaveItem.__init__(self, label, formats=formats, default=default,
-                              basedir=basedir, all_files_first=all_files_first,
-                              help=help, check=check)
+        super().__init__(label, formats=formats, default=default,
+                         basedir=basedir, all_files_first=all_files_first,
+                         help=help, check=check)
 
     def check_value(self, value):
         """Override DataItem method"""
@@ -460,7 +460,7 @@ class ChoiceItem(DataItem):
             default = _choices_data[0][0]
         elif default is FirstChoice:
             default = None
-        DataItem.__init__(self, label, default=default, help=help, check=check)
+        super().__init__(label, default=default, help=help, check=check)
         self.set_prop("data", choices=_choices_data)
         self.set_prop("display", radio=radio)
 
@@ -504,7 +504,7 @@ class MultipleChoiceItem(ChoiceItem):
     """
 
     def __init__(self, label, choices, default=(), help='', check=True):
-        ChoiceItem.__init__(self, label, choices, default, help, check=check)
+        super().__init__(label, choices, default, help, check=check)
         self.set_prop("display", shape=(1, -1))
 
     def horizontal(self, row_nb=1):
@@ -591,7 +591,7 @@ class FloatArrayItem(DataItem):
 
     def __init__(self, label, default=None, help='', format='%.3f',
                  transpose=False, minmax="all", check=True):
-        DataItem.__init__(self, label, default=default, help=help, check=check)
+        super().__init__(label, default=default, help=help, check=check)
         self.set_prop("display", format=format, transpose=transpose,
                       minmax=minmax)
 
@@ -647,7 +647,7 @@ class ButtonItem(DataItem):
 
     def __init__(self, label, callback, icon=None, default=None, help='',
                  check=True):
-        DataItem.__init__(self, label, default=default, help=help, check=check)
+        super().__init__(label, default=default, help=help, check=check)
         self.set_prop("display", callback=callback)
         self.set_prop("display", icon=icon)
 
@@ -695,8 +695,8 @@ class DictItem(ButtonItem):
                 if value_was_none:
                     return
                 return value
-        ButtonItem.__init__(self, label, dictedit, icon='dictedit.png',
-                            default=default, help=help, check=check)
+        super().__init__(label, dictedit, icon='dictedit.png',
+                         default=default, help=help, check=check)
 
 
 class FontFamilyItem(StringItem):
