@@ -30,7 +30,7 @@ from qtpy.compat import getexistingdirectory
 
 from guidata.utils import update_dataset, restore_dataset
 from guidata.qthelpers import text_to_qcolor
-from guidata.configtools import get_icon, get_image_layout, get_image_file_path
+from guidata.configtools import get_icon, get_image_layout
 from guidata.config import _
 
 # ========================== <!> IMPORTANT <!> =================================
@@ -462,7 +462,7 @@ class ColorWidget(HLayoutMixin, LineEditWidget):
             bitmap.fill(color)
             icon = QtGui.QIcon(bitmap)
         else:
-            icon = get_icon("not_found")
+            icon = qta.icon("mdi.card-outline")
         self.button.setIcon(icon)
 
     def select_color(self):
@@ -672,8 +672,9 @@ class ChoiceWidget(AbstractDataSetWidget):
             if img:
                 if isinstance(img, str):
                     if not osp.isfile(img):
-                        img = get_image_file_path(img)
-                    img = QtGui.QIcon(img)
+                        img = qta.icon(img)
+                    else:
+                        img = QtGui.QIcon(img)
                 elif isinstance(img, collections.Callable):
                     img = img(key)
                 if self.is_radio:
@@ -730,7 +731,7 @@ class ChoiceWidget(AbstractDataSetWidget):
         try:
             value = self.value()
         except IndexError:
-            return
+            return None
         self.item.set(value)
 
     def value(self):
@@ -942,7 +943,6 @@ class DataSetWidget(AbstractDataSetWidget):
     def __init__(self, item, parent_layout):
         super().__init__(item, parent_layout)
         self.dataset = self.klass()
-        # Création du layout contenant les champs d'édition du signal
         embedded = item.get_prop_value("display", "embedded", False)
         if not embedded:
             self.group = QtWidgets.QGroupBox(item.get_prop_value("display", "label"))

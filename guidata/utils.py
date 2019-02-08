@@ -3,9 +3,6 @@
 # Copyright © 2009-2010 CEA
 # Pierre Raybaut
 # Licensed under the terms of the CECILL License
-# (see guidata/__init__.py for details)
-
-# pylint: disable=C0103
 
 """
 utils
@@ -42,13 +39,6 @@ def bind(fct, value):
     def callback(*args, **kwargs):
         return fct(value, *args, **kwargs)
     return callback
-
-
-# Findout the encoding used for stdout or use ascii as default
-STDOUT_ENCODING = "ascii"
-if hasattr(sys.stdout, "encoding"):
-    if sys.stdout.encoding:
-        STDOUT_ENCODING = sys.stdout.encoding
 
 
 def update_dataset(dest, source, visible_only=False):
