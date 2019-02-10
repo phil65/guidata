@@ -120,7 +120,7 @@ class UserConfigWriter(UserConfigIOHandler, WriterMixin):
         self.conf.set(self.section, option, val)
 
     write_bool = write_int = write_float = write_any
-    write_array = write_sequence = write_str = write_any
+    write_array = write_sequence = write_any
 
     def write_none(self):
         self.write_any(None)
@@ -130,11 +130,7 @@ class UserConfigReader(UserConfigIOHandler):
 
     def read_any(self):
         option = "/".join(self.option)
-        val = self.conf.get(self.section, option)
-        return val
+        return self.conf.get(self.section, option)
 
     read_bool = read_int = read_float = read_any
-    read_array = read_sequence = read_none = read_str = read_any
-
-    def read_unicode(self):
-        return self.read_str()
+    read_array = read_sequence = read_any

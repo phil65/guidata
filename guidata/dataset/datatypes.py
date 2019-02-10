@@ -88,8 +88,7 @@ class GetAttrProp(ItemProperty):
         self.attr = attr
 
     def __call__(self, instance, item, value):
-        val = getattr(instance, self.attr)
-        return val
+        return getattr(instance, self.attr)
 
     def set(self, instance, item, value):
         setattr(instance, self.attr, value)
@@ -355,7 +354,7 @@ class DataItem(object):
                 traceback.print_stack()
                 print(e, file=sys.stderr)
             self.set_default(instance)
-            return
+            return None
         self.__set__(instance, value)
 
 
@@ -460,16 +459,6 @@ class DataItemProxy(object):
         """DataItem method proxy"""
         return DataItemVariable(self, instance)
 
-#    def __getattr__(self, name):
-#        assert name in ["get_min", "get_max",
-#                        "_formats", "_text", "_choices", "_shape",
-#                        "_format", "_label", "_xy"]
-#        val = getattr(self.item, name)
-#        if callable(val):
-#            return bind(val, self.instance)
-#        else:
-#            return val
-
 
 class DataItemVariable(object):
     """An instance of a DataItemVariable represent a binding between
@@ -494,19 +483,6 @@ class DataItemVariable(object):
         """DataItem method proxy"""
         return self.item.get_prop(realm, name, default)
 
-#    def set_prop(self, realm, **kwargs):
-#        """DataItem method proxy"""
-#        self.item.set_prop(realm, **kwargs)
-#
-#    def __getattr__(self, name):
-#        assert name in ["get_min", "get_max",
-#                        "_formats","_text", "_choices", "_shape",
-#                        "_format", "_label", "_xy"]
-#        val = getattr(self.item, name)
-#        if callable(val):
-#            return bind(val, self.instance)
-#        else:
-#            return val
     def get_help(self):
         """Re-implement DataItem method"""
         return self.item.get_help(self.instance)
@@ -757,7 +733,8 @@ class DataSet(Meta_Py3Compat):
                 except RuntimeError as error:
                     if DEBUG_DESERIALIZE:
                         import traceback
-                        print("DEBUG_DESERIALIZE enabled in datatypes.py", file=sys.stderr)
+                        print("DEBUG_DESERIALIZE enabled in datatypes.py",
+                              file=sys.stderr)
                         traceback.print_stack()
                         print(error, file=sys.stderr)
                     item.set_default(self)

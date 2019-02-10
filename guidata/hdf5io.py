@@ -17,64 +17,6 @@ import h5py
 from guidata.userconfigio import BaseIOHandler, WriterMixin
 
 
-class Attr(object):
-    """Helper class representing class attribute that
-    should be saved/restored to/from a corresponding HDF5 attribute
-
-    hdf_name : name of the attribute in the HDF5 file
-    struct_name : name of the attribute in the object (default to hdf_name)
-    type : attribute type (guess it if None)
-    optional : indicates whether we should fail if the attribute is not present
-    """
-
-    def __init__(self, hdf_name, struct_name=None, type=None, optional=False):
-        self.hdf_name = hdf_name
-        if struct_name is None:
-            struct_name = hdf_name
-        self.struct_name = struct_name
-        self.type = type
-        self.optional = optional
-
-    def get_value(self, struct):
-        if self.optional:
-            return getattr(struct, self.struct_name, None)
-        else:
-            return getattr(struct, self.struct_name)
-
-    def set_value(self, struct, value):
-        setattr(struct, self.struct_name, value)
-
-    def save(self, group, struct):
-        value = self.get_value(struct)
-        if self.optional and value is None:
-            # print ".-", self.hdf_name, value
-            if self.hdf_name in group.attrs:
-                del group.attrs[self.hdf_name]
-            return
-        if self.type is not None:
-            value = self.type.to_hdf(value)
-        # print ".", self.hdf_name, value, self.optional
-        try:
-            group.attrs[self.hdf_name] = value
-        except:
-            print("ERROR saving:", repr(value), "into", self.hdf_name, file=sys.stderr)
-            raise
-
-    def load(self, group, struct):
-        # print "LoadAttr:", group, self.hdf_name
-        if self.optional:
-            if self.hdf_name not in group.attrs:
-                self.set_value(struct, None)
-                return
-        try:
-            value = group.attrs[self.hdf_name]
-        except KeyError:
-            raise KeyError('Unable to locate attribute %s' % self.hdf_name)
-        if self.type is not None:
-            value = self.type.from_hdf(value)
-        self.set_value(struct, value)
-
-
 class H5Store(object):
 
     def __init__(self, filename):
@@ -88,7 +30,8 @@ class H5Store(object):
         try:
             self.h5 = h5py.File(self.filename, mode=mode)
         except Exception:
-            print("Error trying to load:", self.filename, "in mode:", mode, file=sys.stderr)
+            print(f"Error trying to load {self.filename} in mode {mode}",
+                  file=sys.stderr)
             raise
         return self.h5
 
@@ -127,8 +70,6 @@ class HDF5Writer(HDF5Handler, WriterMixin):
 
     def write_bool(self, val):
         self.write_int(int(val))
-
-    write_str = write_any
 
     def write_array(self, val):
         group = self.get_parent_group()
@@ -213,8 +154,6 @@ class HDF5Reader(HDF5Handler):
         if val != '':
             return float(val)
 
-    read_unicode = read_str = read_any
-
     def read_array(self):
         group = self.get_parent_group()
         return group[self.option[-1]][...]
@@ -257,5 +196,3 @@ class HDF5Reader(HDF5Handler):
                         obj.deserialize(self)
                 seq.append(obj)
         return seq
-
-    read_none = read_any

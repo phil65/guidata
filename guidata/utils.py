@@ -28,19 +28,6 @@ def add_extension(item, value):
     return value
 
 
-def bind(fct, value):
-    """
-    Returns a callable representing the function 'fct' with it's
-    first argument bound to the value
-
-    if g = bind(f,1) and f is a function of x,y,z
-    then g(y,z) will return f(1,y,z)
-    """
-    def callback(*args, **kwargs):
-        return fct(value, *args, **kwargs)
-    return callback
-
-
 def update_dataset(dest, source, visible_only=False):
     """
     Update `dest` dataset items from `source` dataset

@@ -213,7 +213,7 @@ class StringItem(DataItem):
     def get_value_from_reader(self, reader):
         """Reads value from the reader object, inside the try...except
         statement defined in the base item `deserialize` method"""
-        return reader.read_unicode()
+        return reader.read_any()
 
 
 class TextItem(StringItem):
@@ -291,10 +291,10 @@ class ColorItem(StringItem):
     def get_value_from_reader(self, reader):
         """Reads value from the reader object, inside the try...except
         statement defined in the base item `deserialize` method"""
-        # Using read_str converts `numpy.string_` to `str` -- otherwise,
+        # Using read_any converts `numpy.string_` to `str` -- otherwise,
         # when passing the string to a QColor Qt object, any numpy.string_ will
         # be interpreted as no color (black)
-        return reader.read_str()
+        return reader.read_any()
 
 
 class FileSaveItem(StringItem):
@@ -382,11 +382,7 @@ class FilesOpenItem(FileSaveItem):
             return True
         if value is None:
             return False
-        allexist = True
-        for path in value:
-            allexist = allexist and os.path.exists(path) \
-                and os.path.isfile(path)
-        return allexist
+        return all(os.path.exists(p) and os.path.isfile(p) for p in value)
 
     def from_string(self, value):
         """Override DataItem method"""
@@ -603,7 +599,7 @@ class FloatArrayItem(DataItem):
             text += " [" + fmt % v.min()
             text += " .. " + fmt % v.max()
             text += "]"
-        text += " %s" % unit
+        text += f" {unit}"
         return str(text)
 
     def serialize(self, instance, writer):
